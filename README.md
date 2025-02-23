@@ -18,8 +18,7 @@
 - **Документация API**: Swagger
 - **Контейнеризация**: Docker
 
-### SonarCloud
-[Sonar](https://sonarcloud.io/project/overview?id=Everolfe_footballSchedule)
+### [SonarCloud](https://sonarcloud.io/project/overview?id=Everolfe_footballSchedule)
 
 ##  Установка и запуск
 
