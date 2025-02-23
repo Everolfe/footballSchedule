@@ -21,7 +21,7 @@
 ### SonarCloud
 [Sonar](https://sonarcloud.io/project/overview?id=Everolfe_footballSchedule)
 
-## 🚀 Установка и запуск
+##  Установка и запуск
 
 ### Требования
 
