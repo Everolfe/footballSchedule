@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/arena")
+@RequestMapping("/arenas")
 public class ArenaController {
     private final ArenaServiceImpl arenaService;
 
@@ -25,7 +25,7 @@ public class ArenaController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping(value = "/all")
+    @GetMapping
     public ResponseEntity<List<Arena>> readAllArenas() {
         final List<Arena> arenas = arenaService.readAll();
         return arenas != null && !arenas.isEmpty()
@@ -33,7 +33,7 @@ public class ArenaController {
                 : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping(value = "/search/capacity")
+    @GetMapping(value = "/search")
     public ResponseEntity<List<Arena>> readArenasByCapacity(
             @RequestParam(required = false) Integer minCapacity,
             @RequestParam(required = false) Integer maxCapacity) {
@@ -43,7 +43,7 @@ public class ArenaController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @GetMapping(value = "/search/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<Arena> readArenaById(@PathVariable(name = "id") int id) {
         final Arena arena = arenaService.read(id);
         return arena != null

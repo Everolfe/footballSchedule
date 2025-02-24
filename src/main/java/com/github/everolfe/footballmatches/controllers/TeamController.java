@@ -26,7 +26,7 @@ public class TeamController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping(value = "/all")
+    @GetMapping
     public ResponseEntity<List<Team>> readAllTeams() {
         final List<Team> teams = teamService.readAll();
         return teams != null && !teams.isEmpty()

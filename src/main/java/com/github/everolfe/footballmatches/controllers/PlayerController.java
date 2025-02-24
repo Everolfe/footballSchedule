@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/player")
+@RequestMapping("/players")
 public class PlayerController {
 
     private final PlayerServiceImpl playerService;
@@ -27,7 +27,7 @@ public class PlayerController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping(value = "/all")
+    @GetMapping
     public ResponseEntity<List<Player>> readAllPlayers() {
         final List<Player> players = playerService.readAll();
         return players != null && !players.isEmpty()
@@ -35,7 +35,7 @@ public class PlayerController {
                 : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping(value = "/search/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<Player> readPlayerById(@PathVariable(name = "id") Integer id) {
         final Player player = playerService.read(id);
         return  player != null

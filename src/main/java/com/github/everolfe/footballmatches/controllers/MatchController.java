@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/match")
+@RequestMapping("/matches")
 public class MatchController {
 
     private final MatchServiceImpl matchService;
@@ -26,7 +26,7 @@ public class MatchController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping(value = "/all")
+    @GetMapping
     public ResponseEntity<List<Match>> readAllMatches() {
         final List<Match> matches = matchService.readAll();
         return matches != null && !matches.isEmpty()
@@ -43,7 +43,7 @@ public class MatchController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @GetMapping(value = "/search/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<Match> readMatchById(@PathVariable int id) {
         final Match match = matchService.read(id);
         return match != null
