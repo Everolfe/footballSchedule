@@ -36,7 +36,7 @@ public class MatchController {
 
     @GetMapping(value = "/search")
     public ResponseEntity<List<Match>> readMatchesByTournament(
-            @RequestParam String tournamentName) {
+            @RequestParam(value = "tournament") String tournamentName) {
         final List<Match> matches = matchService.getMatchesByTournamentName(tournamentName);
         return matches != null && !matches.isEmpty()
                 ? new ResponseEntity<List<Match>>(matches, HttpStatus.OK)

@@ -43,7 +43,7 @@ public class TeamController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @GetMapping(value = "/search/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<Team> readTeamById(@PathVariable(name = "id") Integer id) {
         final Team team = teamService.read(id);
         return team != null
