@@ -1,25 +1,32 @@
 package com.github.everolfe.footballmatches.controllers;
 
+import com.github.everolfe.footballmatches.dto.player.PlayerDto;
+import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
 import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.service.PlayerServiceImpl;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 
 
 @RestController
 @RequestMapping("/players")
+@AllArgsConstructor
 public class PlayerController {
 
     private final PlayerServiceImpl playerService;
 
-    @Autowired
-    public PlayerController(PlayerServiceImpl playerService) {
-        this.playerService = playerService;
-    }
 
     @PostMapping(value = "/create")
     public ResponseEntity<Void> createPlayer(@RequestBody Player player) {
@@ -28,27 +35,27 @@ public class PlayerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Player>> readAllPlayers() {
-        final List<Player> players = playerService.readAll();
+    public ResponseEntity<List<PlayerDtoWithTeam>> readAllPlayers() {
+        final List<PlayerDtoWithTeam> players = playerService.readAll();
         return players != null && !players.isEmpty()
-                ? new ResponseEntity<List<Player>>(players, HttpStatus.OK)
+                ? new ResponseEntity<List<PlayerDtoWithTeam>>(players, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Player> readPlayerById(@PathVariable(name = "id") Integer id) {
-        final Player player = playerService.read(id);
+    public ResponseEntity<PlayerDto> readPlayerById(@PathVariable(name = "id") Integer id) {
+        final PlayerDto player = playerService.read(id);
         return  player != null
-                ? new ResponseEntity<Player>(player, HttpStatus.OK)
+                ? new ResponseEntity<PlayerDto>(player, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping(value = "/search")
-    public ResponseEntity<List<Player>> readPlayersByAge(
+    public ResponseEntity<List<PlayerDto>> readPlayersByAge(
             @RequestParam(value = "age") Integer age) {
-        final List<Player> players = playerService.getPlayersByAge(age);
+        final List<PlayerDto> players = playerService.getPlayersByAge(age);
         return players != null && !players.isEmpty()
-                ? new ResponseEntity<List<Player>>(players, HttpStatus.OK)
+                ? new ResponseEntity<List<PlayerDto>>(players, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 

@@ -1,13 +1,17 @@
 package com.github.everolfe.footballmatches.service;
 
 
+import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
+import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
 import com.github.everolfe.footballmatches.repository.TeamRepository;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 
@@ -16,30 +20,37 @@ import org.springframework.stereotype.Service;
 @Service
 @Transactional
 @AllArgsConstructor
-public class MatchServiceImpl implements ServiceInterface<Match> {
+public class MatchServiceImpl  {
 
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
     private final ArenaRepository  arenaRepository;
 
 
-    @Override
+
     public void create(Match match) {
         matchRepository.save(match);
     }
 
-    @Override
-    public List<Match> readAll() {
-        return matchRepository.findAll();
+    public List<MatchDtoWithArenaAndTeams> readAll() {
+        List<Match> matches = matchRepository.findAll();
+        List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList = new ArrayList<>();
+        if (matches != null) {
+            for (Match match : matches) {
+                matchDtoWithArenaAndTeamsList
+                        .add(ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match));
+            }
+        }
+        return matchDtoWithArenaAndTeamsList;
     }
 
-    @Override
-    public Match read(final Integer id) {
-        return matchRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Match not found"));
+    public MatchDtoWithArenaAndTeams read(final Integer id) {
+        MatchDtoWithArenaAndTeams matchDto = ConvertDtoClasses
+                .convertToMatchDtoWithArenaAndTeams(matchRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + id)));
+        return matchDto;
     }
 
-    @Override
     public boolean update(Match match, final Integer id) {
         if (matchRepository.existsById(id)) {
             match.setId(id);
@@ -49,7 +60,6 @@ public class MatchServiceImpl implements ServiceInterface<Match> {
         return false;
     }
 
-    @Override
     public boolean delete(final Integer matchId) {
         if (matchRepository.existsById(matchId)) {
             matchRepository.deleteById(matchId);
@@ -58,7 +68,12 @@ public class MatchServiceImpl implements ServiceInterface<Match> {
         return false;
     }
 
-    public List<Match> getMatchesByTournamentName(final String tournamentName) {
-        return matchRepository.findByTournamentNameIgnoreCase(tournamentName);
+    public List<MatchDtoWithArenaAndTeams> getMatchesByTournamentName(final String tournamentName) {
+        List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList = new ArrayList<>();
+        for (Match match : matchRepository.findByTournamentNameIgnoreCase(tournamentName)) {
+            matchDtoWithArenaAndTeamsList
+                    .add(ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match));
+        }
+        return matchDtoWithArenaAndTeamsList;
     }
 }

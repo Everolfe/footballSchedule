@@ -1,24 +1,30 @@
 package com.github.everolfe.footballmatches.controllers;
 
+import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.service.MatchServiceImpl;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
 @RequestMapping("/matches")
+@AllArgsConstructor
 public class MatchController {
 
     private final MatchServiceImpl matchService;
 
-    @Autowired
-    public MatchController(MatchServiceImpl matchService) {
-        this.matchService = matchService;
-    }
 
     @PostMapping(value = "/create")
     public ResponseEntity<Void> createMatch(@RequestBody Match match) {
@@ -27,27 +33,28 @@ public class MatchController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Match>> readAllMatches() {
-        final List<Match> matches = matchService.readAll();
+    public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readAllMatches() {
+        final List<MatchDtoWithArenaAndTeams> matches = matchService.readAll();
         return matches != null && !matches.isEmpty()
-                ? new ResponseEntity<List<Match>>(matches, HttpStatus.OK)
+                ? new ResponseEntity<List<MatchDtoWithArenaAndTeams>>(matches, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping(value = "/search")
-    public ResponseEntity<List<Match>> readMatchesByTournament(
+    public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByTournament(
             @RequestParam(value = "tournament") String tournamentName) {
-        final List<Match> matches = matchService.getMatchesByTournamentName(tournamentName);
+        final List<MatchDtoWithArenaAndTeams> matches =
+                matchService.getMatchesByTournamentName(tournamentName);
         return matches != null && !matches.isEmpty()
-                ? new ResponseEntity<List<Match>>(matches, HttpStatus.OK)
+                ? new ResponseEntity<List<MatchDtoWithArenaAndTeams>>(matches, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Match> readMatchById(@PathVariable int id) {
-        final Match match = matchService.read(id);
+    public ResponseEntity<MatchDtoWithArenaAndTeams> readMatchById(@PathVariable int id) {
+        final MatchDtoWithArenaAndTeams match = matchService.read(id);
         return match != null
-                ? new ResponseEntity<Match>(match, HttpStatus.OK)
+                ? new ResponseEntity<MatchDtoWithArenaAndTeams>(match, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 

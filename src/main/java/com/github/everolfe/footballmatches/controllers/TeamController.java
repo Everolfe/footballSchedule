@@ -1,24 +1,31 @@
 package com.github.everolfe.footballmatches.controllers;
 
+import com.github.everolfe.footballmatches.dto.team.TeamDtoWithMatchesAndPlayers;
+import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
 import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.service.TeamServiceImpl;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
 @RequestMapping("/teams")
+@AllArgsConstructor
 public class TeamController {
 
     private final TeamServiceImpl teamService;
 
-    @Autowired
-    public TeamController(TeamServiceImpl teamService) {
-        this.teamService = teamService;
-    }
 
     @PostMapping(value = "/create")
     public ResponseEntity<Void> createTeam(@RequestBody Team team) {
@@ -27,27 +34,27 @@ public class TeamController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Team>> readAllTeams() {
-        final List<Team> teams = teamService.readAll();
+    public ResponseEntity<List<TeamDtoWithMatchesAndPlayers>> readAllTeams() {
+        final List<TeamDtoWithMatchesAndPlayers> teams = teamService.readAll();
         return teams != null && !teams.isEmpty()
-                ? new ResponseEntity<List<Team>>(teams, HttpStatus.OK)
+                ? new ResponseEntity<List<TeamDtoWithMatchesAndPlayers>>(teams, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping(value = "/search")
-    public ResponseEntity<List<Team>> readTeamsByCountry(
+    public ResponseEntity<List<TeamDtoWithPlayers>> readTeamsByCountry(
             @RequestParam(value = "country") String country) {
-        final List<Team> teams = teamService.getTeamsByCountry(country);
+        final List<TeamDtoWithPlayers> teams = teamService.getTeamsByCountry(country);
         return teams != null && !teams.isEmpty()
-                ? new ResponseEntity<List<Team>>(teams, HttpStatus.OK)
+                ? new ResponseEntity<List<TeamDtoWithPlayers>>(teams, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Team> readTeamById(@PathVariable(name = "id") Integer id) {
-        final Team team = teamService.read(id);
+    public ResponseEntity<TeamDtoWithPlayers> readTeamById(@PathVariable(name = "id") Integer id) {
+        final TeamDtoWithPlayers team = teamService.read(id);
         return team != null
-                ? new ResponseEntity<Team>(team, HttpStatus.OK)
+                ? new ResponseEntity<TeamDtoWithPlayers>(team, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 

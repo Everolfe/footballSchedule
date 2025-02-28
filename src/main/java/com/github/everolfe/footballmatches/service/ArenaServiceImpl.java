@@ -1,6 +1,9 @@
 package com.github.everolfe.footballmatches.service;
 
 
+import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
+import com.github.everolfe.footballmatches.dto.arena.ArenaDto;
+import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
@@ -9,35 +12,42 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 
 @Service
 @Transactional
 @AllArgsConstructor
-public class ArenaServiceImpl implements ServiceInterface<Arena> {
+public class ArenaServiceImpl {
 
     private final ArenaRepository arenaRepository;
-
     private  final MatchRepository matchRepository;
 
 
-    @Override
+
     public void create(Arena arena) {
         arenaRepository.save(arena);
     }
 
-    @Override
-    public List<Arena> readAll() {
-        return arenaRepository.findAll();
+    public List<ArenaDtoWithMatches> readAll() {
+        List<ArenaDtoWithMatches> arenaDtoWithMatches = new ArrayList<>();
+        List<Arena> arenas = arenaRepository.findAll();
+        if (arenas != null) {
+            for (Arena arena : arenas) {
+                arenaDtoWithMatches.add(ConvertDtoClasses.convertToArenaDtoWithMatches(arena));
+            }
+        }
+        return arenaDtoWithMatches;
     }
 
-    @Override
-    public Arena read(final Integer id) {
-        return arenaRepository.findById(id)
-               .orElseThrow(() -> new RuntimeException("Arena not found"));
+    public ArenaDto read(final Integer id) {
+        ArenaDto arenaDto = ConvertDtoClasses
+                .convertToArenaDto(arenaRepository.findById(id)
+                        .orElseThrow(() -> new ResourceAccessException("Doesn't exist " + id)));
+
+        return arenaDto;
     }
 
-    @Override
     public boolean update(Arena arena, final Integer id) {
         if (arenaRepository.existsById(id)) {
             arena.setId(id);
@@ -47,7 +57,7 @@ public class ArenaServiceImpl implements ServiceInterface<Arena> {
         return false;
     }
 
-    @Override
+
     public boolean delete(final Integer id) {
         if (arenaRepository.existsById(id)) {
             arenaRepository.deleteById(id);
@@ -61,15 +71,25 @@ public class ArenaServiceImpl implements ServiceInterface<Arena> {
                 || (minCapacity != null && maxCapacity != null && minCapacity > maxCapacity);
     }
 
-    public List<Arena> getArenasByCapacity(final Integer minCapacity, final Integer maxCapacity) {
+    public List<ArenaDto> getArenasByCapacity(
+            final Integer minCapacity, final Integer maxCapacity) {
+        List<ArenaDto> arenaDto = new ArrayList<>();
         if (checkValidCapacity(minCapacity, maxCapacity)) {
-            return new ArrayList<>();
+            return arenaDto;
         } else if (minCapacity == null) {
-            return arenaRepository.findByCapacityLessThanEqual(maxCapacity);
+            for (Arena arena : arenaRepository.findByCapacityLessThanEqual(maxCapacity)) {
+                arenaDto.add(ConvertDtoClasses.convertToArenaDto(arena));
+            }
         } else if (maxCapacity == null) {
-            return arenaRepository.findByCapacityGreaterThanEqual(minCapacity);
+            for (Arena arena : arenaRepository.findByCapacityGreaterThanEqual(minCapacity)) {
+                arenaDto.add(ConvertDtoClasses.convertToArenaDto(arena));
+            }
         } else {
-            return arenaRepository.findByCapacityBetween(minCapacity, maxCapacity);
+            for (Arena arena : arenaRepository.findByCapacityBetween(minCapacity, maxCapacity)) {
+                arenaDto.add(ConvertDtoClasses.convertToArenaDto(arena));
+            }
         }
+        return arenaDto;
+
     }
 }
