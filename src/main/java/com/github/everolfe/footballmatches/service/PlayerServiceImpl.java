@@ -39,10 +39,9 @@ public class PlayerServiceImpl {
 
 
     public PlayerDto read(final Integer id) {
-        PlayerDto playerDto = ConvertDtoClasses
+        return ConvertDtoClasses
                 .convertToPlayerDto(playerRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + id)));
-        return playerDto;
     }
 
 

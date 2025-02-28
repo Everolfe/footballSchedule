@@ -47,10 +47,9 @@ public class TeamServiceImpl {
 
 
     public TeamDtoWithPlayers read(final Integer id) {
-        TeamDtoWithPlayers teamDtoWithPlayers = ConvertDtoClasses
+        return ConvertDtoClasses
                 .convertToTeamDtoWithPlayers(teamRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist " + id)));
-        return teamDtoWithPlayers;
     }
 
 

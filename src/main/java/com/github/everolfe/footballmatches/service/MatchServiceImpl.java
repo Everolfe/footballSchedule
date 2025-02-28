@@ -45,10 +45,10 @@ public class MatchServiceImpl  {
     }
 
     public MatchDtoWithArenaAndTeams read(final Integer id) {
-        MatchDtoWithArenaAndTeams matchDto = ConvertDtoClasses
+        return ConvertDtoClasses
                 .convertToMatchDtoWithArenaAndTeams(matchRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + id)));
-        return matchDto;
+
     }
 
     public boolean update(Match match, final Integer id) {

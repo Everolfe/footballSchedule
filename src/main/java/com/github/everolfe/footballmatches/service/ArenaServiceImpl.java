@@ -41,11 +41,9 @@ public class ArenaServiceImpl {
     }
 
     public ArenaDto read(final Integer id) {
-        ArenaDto arenaDto = ConvertDtoClasses
+        return ConvertDtoClasses
                 .convertToArenaDto(arenaRepository.findById(id)
                         .orElseThrow(() -> new ResourceAccessException("Doesn't exist " + id)));
-
-        return arenaDto;
     }
 
     public boolean update(Arena arena, final Integer id) {
