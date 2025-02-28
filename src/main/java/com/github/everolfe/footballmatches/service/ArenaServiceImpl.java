@@ -33,9 +33,8 @@ public class ArenaServiceImpl implements ServiceInterface<Arena> {
 
     @Override
     public Arena read(final Integer id) {
-        //return arenaRepository.findById(id)
-        //       .orElseThrow(() -> new RuntimeException("Arena not found"));
-        return arenaRepository.findById(id).orElse(null);
+        return arenaRepository.findById(id)
+               .orElseThrow(() -> new RuntimeException("Arena not found"));
     }
 
     @Override
