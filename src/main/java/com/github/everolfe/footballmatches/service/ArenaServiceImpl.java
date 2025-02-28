@@ -2,50 +2,47 @@ package com.github.everolfe.footballmatches.service;
 
 
 import com.github.everolfe.footballmatches.model.Arena;
+import com.github.everolfe.footballmatches.repository.ArenaRepository;
+import com.github.everolfe.footballmatches.repository.MatchRepository;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 @Service
+@Transactional
+@AllArgsConstructor
 public class ArenaServiceImpl implements ServiceInterface<Arena> {
 
-    private static final HashMap<Integer, Arena> ARENA_REPOSITORY_MAP
-            = new HashMap<Integer, Arena>();
+    private final ArenaRepository arenaRepository;
 
-    private static final AtomicInteger ARENA_ID_HOLDER = new AtomicInteger();
+    private  final MatchRepository matchRepository;
 
-    public ArenaServiceImpl() {
-        create(new Arena(1, "Manchester", 53400));
-        create(new Arena(2, "Madrid", 81044));
-        create(new Arena(3, "Barcelona", 99354));
-        create(new Arena(4, "London", 40343));
-        create(new Arena(5, "Bayern", 70000));
-    }
 
     @Override
-    public void create(Arena obj) {
-        final int teamId = ARENA_ID_HOLDER.incrementAndGet();
-        obj.setId(teamId);
-        ARENA_REPOSITORY_MAP.put(teamId, obj);
+    public void create(Arena arena) {
+        arenaRepository.save(arena);
     }
 
     @Override
     public List<Arena> readAll() {
-        return new ArrayList<Arena>(ARENA_REPOSITORY_MAP.values());
+        return arenaRepository.findAll();
     }
 
     @Override
     public Arena read(final Integer id) {
-        return ARENA_REPOSITORY_MAP.get(id);
+        //return arenaRepository.findById(id)
+        //       .orElseThrow(() -> new RuntimeException("Arena not found"));
+        return arenaRepository.findById(id).orElse(null);
     }
 
     @Override
-    public boolean update(Arena obj, final Integer id) {
-        if (ARENA_REPOSITORY_MAP.containsKey(id)) {
-            obj.setId(id);
-            ARENA_REPOSITORY_MAP.put(id, obj);
+    public boolean update(Arena arena, final Integer id) {
+        if (arenaRepository.existsById(id)) {
+            arena.setId(id);
+            arenaRepository.save(arena);
             return true;
         }
         return false;
@@ -53,7 +50,11 @@ public class ArenaServiceImpl implements ServiceInterface<Arena> {
 
     @Override
     public boolean delete(final Integer id) {
-        return ARENA_REPOSITORY_MAP.remove(id) != null;
+        if (arenaRepository.existsById(id)) {
+            arenaRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     public boolean checkValidCapacity(final Integer minCapacity, final Integer maxCapacity) {
@@ -62,10 +63,14 @@ public class ArenaServiceImpl implements ServiceInterface<Arena> {
     }
 
     public List<Arena> getArenasByCapacity(final Integer minCapacity, final Integer maxCapacity) {
-        return ARENA_REPOSITORY_MAP.values().stream()
-                .filter(arena ->
-                        (minCapacity == null || arena.getCapacity() >= minCapacity)
-                                && (maxCapacity == null || arena.getCapacity() <= maxCapacity))
-                .toList();
+        if (checkValidCapacity(minCapacity, maxCapacity)) {
+            return new ArrayList<>();
+        } else if (minCapacity == null) {
+            return arenaRepository.findByCapacityLessThanEqual(maxCapacity);
+        } else if (maxCapacity == null) {
+            return arenaRepository.findByCapacityGreaterThanEqual(minCapacity);
+        } else {
+            return arenaRepository.findByCapacityBetween(minCapacity, maxCapacity);
+        }
     }
 }

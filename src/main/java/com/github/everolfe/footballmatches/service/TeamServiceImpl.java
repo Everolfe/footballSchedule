@@ -2,53 +2,47 @@ package com.github.everolfe.footballmatches.service;
 
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.model.Team;
+import com.github.everolfe.footballmatches.repository.MatchRepository;
+import com.github.everolfe.footballmatches.repository.PlayerRepository;
+import com.github.everolfe.footballmatches.repository.TeamRepository;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
 
 @Service
+@Transactional
+@AllArgsConstructor
 public class TeamServiceImpl implements ServiceInterface<Team> {
 
-    private static final Map<Integer, Team> TEAM_REPOSITORY_MAP = new HashMap<Integer, Team>();
-
-    private static final AtomicInteger TEAM_ID_HOLDER = new AtomicInteger();
-
-    public TeamServiceImpl() {
-        create(new Team(1, "Barcelona", "Spain"));
-        create(new Team(2, "Real Madrid", "Spain"));
-        create(new Team(3, "Chelsea", "London"));
-        create(new Team(4, "PSG", "France"));
-        create(new Team(5, "Bayer 04", "Germany"));
-    }
+    private final TeamRepository teamRepository;
+    private final MatchRepository matchRepository;
+    private final PlayerRepository playerRepository;
 
     @Override
-    public void create(Team obj) {
-        final int teamId = TEAM_ID_HOLDER.incrementAndGet();
-        obj.setId(teamId);
-        TEAM_REPOSITORY_MAP.put(teamId, obj);
-
+    public void create(Team team) {
+        teamRepository.save(team);
     }
 
     @Override
     public List<Team> readAll() {
-        return new ArrayList<Team>(TEAM_REPOSITORY_MAP.values());
+        return teamRepository.findAll();
     }
 
     @Override
     public Team read(final Integer id) {
-        return TEAM_REPOSITORY_MAP.get(id);
+        return teamRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Team not found"));
     }
 
     @Override
-    public boolean update(Team obj, final Integer id) {
-        if (TEAM_REPOSITORY_MAP.containsKey(id)) {
-            obj.setId(id);
-            TEAM_REPOSITORY_MAP.put(id, obj);
+    public boolean update(Team team, final Integer id) {
+        if (teamRepository.existsById(id)) {
+            team.setId(id);
+            teamRepository.save(team);
             return true;
         }
         return false;
@@ -56,24 +50,25 @@ public class TeamServiceImpl implements ServiceInterface<Team> {
 
     @Override
     public boolean delete(final Integer id) {
-        return TEAM_REPOSITORY_MAP.remove(id) != null;
-    }
-
-    public boolean addMatchToTeam(final Integer id, Match match) {
-        Team team = TEAM_REPOSITORY_MAP.get(id);
-        if (team != null) {
-            if (team.getMatches() == null) {
-                team.setMatches(new ArrayList<Match>());
-            }
-            team.getMatches().add(match);
+        if (teamRepository.existsById(id)) {
+            teamRepository.deleteById(id);
             return true;
         }
         return false;
     }
 
+    public boolean addMatchToTeam(final Integer id, Match match) {
+        Team team = teamRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Team not found"));
+        if (team.getMatches() == null) {
+            team.setMatches(new ArrayList<Match>());
+        }
+        team.getMatches().add(match);
+        teamRepository.save(team);
+        return true;
+    }
+
     public List<Team> getTeamsByCountry(final String country) {
-        return TEAM_REPOSITORY_MAP.values().stream()
-                .filter(team -> team.getCountry() != null && team.getCountry()
-                        .equalsIgnoreCase(country)).toList();
+        return teamRepository.findByCountryIgnoreCase(country);
     }
 }
