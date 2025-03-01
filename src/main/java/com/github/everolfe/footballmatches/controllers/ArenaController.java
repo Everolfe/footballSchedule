@@ -3,7 +3,7 @@ package com.github.everolfe.footballmatches.controllers;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDto;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.model.Arena;
-import com.github.everolfe.footballmatches.service.ArenaServiceImpl;
+import com.github.everolfe.footballmatches.service.ArenaService;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,15 +19,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-
-
-
-
 @RestController
 @RequestMapping("/arenas")
 @AllArgsConstructor
 public class ArenaController {
-    private final ArenaServiceImpl arenaService;
+    private final ArenaService arenaService;
 
     @PostMapping(value = "/create")
     public ResponseEntity<Void> createArena(@RequestBody Arena arena) {

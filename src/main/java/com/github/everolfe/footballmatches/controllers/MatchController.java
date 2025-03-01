@@ -2,7 +2,7 @@ package com.github.everolfe.footballmatches.controllers;
 
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.model.Match;
-import com.github.everolfe.footballmatches.service.MatchServiceImpl;
+import com.github.everolfe.footballmatches.service.MatchService;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class MatchController {
 
-    private final MatchServiceImpl matchService;
+    private final MatchService matchService;
 
 
     @PostMapping(value = "/create")

@@ -3,7 +3,7 @@ package com.github.everolfe.footballmatches.controllers;
 import com.github.everolfe.footballmatches.dto.player.PlayerDto;
 import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
 import com.github.everolfe.footballmatches.model.Player;
-import com.github.everolfe.footballmatches.service.PlayerServiceImpl;
+import com.github.everolfe.footballmatches.service.PlayerService;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class PlayerController {
 
-    private final PlayerServiceImpl playerService;
+    private final PlayerService playerService;
 
 
     @PostMapping(value = "/create")
