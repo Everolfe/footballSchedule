@@ -2,9 +2,18 @@ package com.github.everolfe.footballmatches.repository;
 
 import com.github.everolfe.footballmatches.model.Player;
 import java.util.List;
+
+import com.github.everolfe.footballmatches.model.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 
 public interface PlayerRepository extends JpaRepository<Player, Integer> {
-    List<Player> findByAge(Integer age);
+
+    @Query("SELECT p FROM Player p WHERE p.age = :age")
+    List<Player> findByAge(@Param("age") Integer age);
+
+    @Query("SELECT p FROM Player p WHERE p.team = :team")
+    List<Player> findByTeam(@Param("team") Team team);
 }
