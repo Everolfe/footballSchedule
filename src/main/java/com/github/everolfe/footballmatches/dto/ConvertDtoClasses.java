@@ -59,6 +59,7 @@ public class ConvertDtoClasses {
         MatchDtoWithTeams matchDto = new MatchDtoWithTeams();
         matchDto.setId(match.getId());
         matchDto.setDateTime(match.getDateTime());
+        matchDto.setTournamentName(match.getTournamentName());
         List<TeamDtoWithPlayers> teamDtoWithPlayersList = new ArrayList<>();
         if (match.getTeamList() != null) {
             for (Team team : match.getTeamList()) {
@@ -76,6 +77,7 @@ public class ConvertDtoClasses {
         MatchDtoWithArenaAndTeams matchDto = new MatchDtoWithArenaAndTeams();
         matchDto.setId(match.getId());
         matchDto.setDateTime(match.getDateTime());
+        matchDto.setTournamentName(match.getTournamentName());
         matchDto.setArenaDto(convertToArenaDto(match.getArena()));
         List<TeamDtoWithPlayers> teamDtoWithPlayersList = new ArrayList<>();
         if (match.getTeamList() != null) {
@@ -94,6 +96,7 @@ public class ConvertDtoClasses {
         MatchDtoWithArena matchDto = new MatchDtoWithArena();
         matchDto.setId(match.getId());
         matchDto.setDateTime(match.getDateTime());
+        matchDto.setTournamentName(match.getTournamentName());
         matchDto.setArenaDto(convertToArenaDto(match.getArena()));
         return matchDto;
     }
