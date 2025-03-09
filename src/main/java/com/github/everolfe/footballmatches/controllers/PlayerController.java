@@ -65,7 +65,7 @@ public class PlayerController {
         final boolean updated = playerService.update(player, id);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping(value = "/delete/{id}")

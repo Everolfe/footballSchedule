@@ -63,7 +63,7 @@ public class ArenaController {
         final boolean updated = arenaService.update(arena, id);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping(value = "/delete/{id}")
