@@ -27,7 +27,7 @@ public class MatchService  {
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
     private final ArenaRepository  arenaRepository;
-
+    private static final String DOESNT_EXIST = "Match does not exist with ID = ";
     public void create(Match match) {
         matchRepository.save(match);
     }
@@ -47,7 +47,7 @@ public class MatchService  {
     public MatchDtoWithArenaAndTeams read(final Integer id) {
         return ConvertDtoClasses
                 .convertToMatchDtoWithArenaAndTeams(matchRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + id)));
+                        .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + id)));
 
     }
 
@@ -70,9 +70,9 @@ public class MatchService  {
 
     public boolean setNewArena(final Integer matchId, final Integer arenaId) {
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + matchId));
+                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + matchId));
         Arena newArena = arenaRepository.findById(arenaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + arenaId));
+                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + arenaId));
         match.setArena(newArena);
         matchRepository.save(match);
         return true;
@@ -80,7 +80,7 @@ public class MatchService  {
 
     public boolean updateMatchTime(final Integer matchId, final LocalDateTime time) {
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + matchId));
+                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + matchId));
         match.setDateTime(time);
         matchRepository.save(match);
         return true;
