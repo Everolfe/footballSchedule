@@ -84,7 +84,7 @@ public class MatchController {
             @PathVariable final Integer matchId,
             @RequestParam(value = "time") final LocalDateTime time) {
 
-        boolean updated = matchService.updateMatchTime(matchId,time);
+        boolean updated = matchService.updateMatchTime(matchId, time);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
                 : ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();

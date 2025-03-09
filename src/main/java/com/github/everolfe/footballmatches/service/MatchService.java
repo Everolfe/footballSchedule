@@ -28,6 +28,7 @@ public class MatchService  {
     private final TeamRepository teamRepository;
     private final ArenaRepository  arenaRepository;
     private static final String DOESNT_EXIST = "Match does not exist with ID = ";
+
     public void create(Match match) {
         matchRepository.save(match);
     }
