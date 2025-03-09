@@ -67,7 +67,7 @@ public class MatchController {
         final boolean updated = matchService.update(match, id);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PatchMapping(value = "/{matchId}/set-arena")
@@ -77,7 +77,7 @@ public class MatchController {
         final boolean updated = matchService.setNewArena(matchId, newArenaId);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PatchMapping(value = "/{matchId}/update-time")
@@ -88,7 +88,7 @@ public class MatchController {
         boolean updated = matchService.updateMatchTime(matchId, time);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping(value = "/delete/{id}")
