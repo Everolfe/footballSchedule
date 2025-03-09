@@ -45,7 +45,7 @@ public class MatchService  {
         return matchDtoWithArenaAndTeamsList;
     }
 
-    public MatchDtoWithArenaAndTeams read(final Integer id) throws Exception {
+    public MatchDtoWithArenaAndTeams read(final Integer id) throws ResourceNotFoundException {
         return ConvertDtoClasses
                 .convertToMatchDtoWithArenaAndTeams(matchRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + id)));
