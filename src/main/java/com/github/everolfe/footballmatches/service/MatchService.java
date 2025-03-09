@@ -3,11 +3,13 @@ package com.github.everolfe.footballmatches.service;
 
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
+import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
 import com.github.everolfe.footballmatches.repository.TeamRepository;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -64,6 +66,24 @@ public class MatchService  {
             return true;
         }
         return false;
+    }
+
+    public boolean setNewArena(final Integer matchId, final Integer arenaId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + matchId));
+        Arena newArena = arenaRepository.findById(arenaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + arenaId));
+        match.setArena(newArena);
+        matchRepository.save(match);
+        return true;
+    }
+
+    public boolean updateMatchTime(final Integer matchId, final LocalDateTime time) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist" + matchId));
+        match.setDateTime(time);
+        matchRepository.save(match);
+        return true;
     }
 
     public List<MatchDtoWithArenaAndTeams> getMatchesByTournamentName(final String tournamentName) {
