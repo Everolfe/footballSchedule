@@ -53,7 +53,8 @@ public class MatchController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<MatchDtoWithArenaAndTeams> readMatchById(@PathVariable final Integer id) {
+    public ResponseEntity<MatchDtoWithArenaAndTeams> readMatchById(
+            @PathVariable final Integer id) throws Exception {
         final MatchDtoWithArenaAndTeams match = matchService.read(id);
         return match != null
                 ? new ResponseEntity<MatchDtoWithArenaAndTeams>(match, HttpStatus.OK)
@@ -72,7 +73,7 @@ public class MatchController {
     @PatchMapping(value = "/{matchId}/set-arena")
     public ResponseEntity<Void> setNewArena(
             @PathVariable final Integer matchId,
-            @RequestParam(value = "newArenaId") final Integer newArenaId) {
+            @RequestParam(value = "newArenaId") final Integer newArenaId) throws Exception {
         final boolean updated = matchService.setNewArena(matchId, newArenaId);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
@@ -82,7 +83,7 @@ public class MatchController {
     @PatchMapping(value = "/{matchId}/update-time")
     public ResponseEntity<Void> updateMatchTime(
             @PathVariable final Integer matchId,
-            @RequestParam(value = "time") final LocalDateTime time) {
+            @RequestParam(value = "time") final LocalDateTime time) throws Exception {
 
         boolean updated = matchService.updateMatchTime(matchId, time);
         return updated

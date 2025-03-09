@@ -45,7 +45,7 @@ public class MatchService  {
         return matchDtoWithArenaAndTeamsList;
     }
 
-    public MatchDtoWithArenaAndTeams read(final Integer id) {
+    public MatchDtoWithArenaAndTeams read(final Integer id) throws Exception {
         return ConvertDtoClasses
                 .convertToMatchDtoWithArenaAndTeams(matchRepository.findById(id)
                         .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + id)));
@@ -69,7 +69,7 @@ public class MatchService  {
         return false;
     }
 
-    public boolean setNewArena(final Integer matchId, final Integer arenaId) {
+    public boolean setNewArena(final Integer matchId, final Integer arenaId) throws Exception {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + matchId));
         Arena newArena = arenaRepository.findById(arenaId)
@@ -79,7 +79,8 @@ public class MatchService  {
         return true;
     }
 
-    public boolean updateMatchTime(final Integer matchId, final LocalDateTime time) {
+    public boolean updateMatchTime(
+            final Integer matchId, final LocalDateTime time) throws Exception {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + matchId));
         match.setDateTime(time);
