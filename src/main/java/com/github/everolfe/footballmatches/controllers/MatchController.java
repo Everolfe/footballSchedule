@@ -6,6 +6,7 @@ import com.github.everolfe.footballmatches.service.MatchService;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,7 +55,7 @@ public class MatchController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<MatchDtoWithArenaAndTeams> readMatchById(
-            @PathVariable final Integer id) throws Exception {
+            @PathVariable final Integer id) throws ResourceNotFoundException {
         final MatchDtoWithArenaAndTeams match = matchService.read(id);
         return match != null
                 ? new ResponseEntity<MatchDtoWithArenaAndTeams>(match, HttpStatus.OK)

@@ -71,7 +71,7 @@ public class TeamController {
     @PatchMapping(value = "/{teamId}/add-player")
     public ResponseEntity<Void> addPlayerToTeam(
             @PathVariable(name = "teamId") final Integer teamId,
-            @RequestParam(value = "playerId") final Integer playerId ) throws Exception {
+            @RequestParam(value = "playerId") final Integer playerId) throws Exception {
         boolean updated = teamService.addPlayerToTeam(teamId, playerId);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
@@ -81,7 +81,7 @@ public class TeamController {
     @PatchMapping(value = "/{teamId}/add-match")
     public ResponseEntity<Void> addMatchToTeam(
             @PathVariable(name = "teamId") final Integer teamId,
-            @RequestParam(value = "matchId") final Integer matchId ) throws Exception {
+            @RequestParam(value = "matchId") final Integer matchId) throws Exception {
         boolean updated = teamService.addMatchToTeam(teamId, matchId);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
