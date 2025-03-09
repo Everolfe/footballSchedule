@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -64,7 +65,27 @@ public class TeamController {
         final boolean updated = teamService.update(team, id);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PatchMapping(value = "/{teamId}/add-player")
+    public ResponseEntity<Void> addPlayerToTeam(
+            @PathVariable(name = "teamId") final Integer teamId,
+            @RequestParam(value = "playerId") final Integer playerId ) throws Exception {
+        boolean updated = teamService.addPlayerToTeam(teamId, playerId);
+        return updated
+                ? ResponseEntity.status(HttpStatus.OK).build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PatchMapping(value = "/{teamId}/add-match")
+    public ResponseEntity<Void> addMatchToTeam(
+            @PathVariable(name = "teamId") final Integer teamId,
+            @RequestParam(value = "matchId") final Integer matchId ) throws Exception {
+        boolean updated = teamService.addMatchToTeam(teamId, matchId);
+        return updated
+                ? ResponseEntity.status(HttpStatus.OK).build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping(value = "/delete/{id}")

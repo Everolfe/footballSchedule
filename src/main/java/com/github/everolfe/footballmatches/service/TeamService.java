@@ -4,6 +4,7 @@ import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithMatchesAndPlayers;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
 import com.github.everolfe.footballmatches.model.Match;
+import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
 import com.github.everolfe.footballmatches.repository.PlayerRepository;
@@ -26,6 +27,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
     private final  PlayerRepository playerRepository;
+    private static final String DOESNT_EXIST = "The team does not exist with ID = ";
 
     public void create(Team team) {
         teamRepository.save(team);
@@ -47,7 +49,7 @@ public class TeamService {
     public TeamDtoWithPlayers read(final Integer id) {
         return ConvertDtoClasses
                 .convertToTeamDtoWithPlayers(teamRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Doesn't exist " + id)));
+                        .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + id)));
     }
 
 
@@ -69,11 +71,31 @@ public class TeamService {
         return false;
     }
 
+    public boolean addPlayerToTeam(final Integer teamId, final Integer playerId) throws Exception {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + teamId));
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Dont find player with id = " + playerId));
+        if (player.getTeam() != null && player.getTeam().equals(team)) {
+            throw new BadRequestException("Player already exists in this team");
+        }
+        player.setTeam(team);
+        if (team.getPlayers() == null) {
+            team.setPlayers(new ArrayList<>());
+        }
+        team.getPlayers().add(player);
+        teamRepository.save(team);
+        playerRepository.save(player);
+        return true;
+    }
+
     public boolean addMatchToTeam(final Integer teamId, final Integer matchId) throws Exception {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + teamId));
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new ResourceNotFoundException("Match not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Dont find match with id = " + matchId));
         if (match.getTeamList().isEmpty()) {
             List<Team> teamList = new ArrayList<>();
             teamList.add(team);
