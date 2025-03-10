@@ -66,7 +66,7 @@ public class ArenaController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @DeleteMapping(value = "/delete/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteArena(@PathVariable(name = "id") int id) {
         final boolean deleted = arenaService.delete(id);
         return deleted

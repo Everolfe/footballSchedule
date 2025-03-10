@@ -29,7 +29,7 @@ public class MatchController {
     private final MatchService matchService;
 
 
-    @PostMapping(value = "/create")
+    @PostMapping()
     public ResponseEntity<Void> createMatch(@RequestBody Match match) {
         matchService.create(match);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -92,7 +92,7 @@ public class MatchController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @DeleteMapping(value = "/delete/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteMatch(@PathVariable final Integer id) {
         final boolean deleted = matchService.delete(id);
         return deleted

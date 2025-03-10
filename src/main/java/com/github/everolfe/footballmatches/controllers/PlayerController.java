@@ -68,7 +68,7 @@ public class PlayerController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @DeleteMapping(value = "/delete/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deletePlayer(@PathVariable(name = "id") Integer id) {
         final boolean deleted = playerService.delete(id);
         return deleted
