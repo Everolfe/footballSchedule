@@ -88,6 +88,7 @@ public class TeamController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteTeam(@PathVariable(name = "id") Integer id) {
         final boolean deleted = teamService.delete(id);

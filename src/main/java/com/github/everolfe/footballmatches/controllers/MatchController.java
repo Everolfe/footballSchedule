@@ -28,7 +28,6 @@ public class MatchController {
 
     private final MatchService matchService;
 
-
     @PostMapping()
     public ResponseEntity<Void> createMatch(@RequestBody Match match) {
         matchService.create(match);
@@ -39,7 +38,7 @@ public class MatchController {
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readAllMatches() {
         final List<MatchDtoWithArenaAndTeams> matches = matchService.readAll();
         return matches != null && !matches.isEmpty()
-                ? new ResponseEntity<List<MatchDtoWithArenaAndTeams>>(matches, HttpStatus.OK)
+                ? new ResponseEntity<>(matches, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -49,7 +48,7 @@ public class MatchController {
         final List<MatchDtoWithArenaAndTeams> matches =
                 matchService.getMatchesByTournamentName(tournamentName);
         return matches != null && !matches.isEmpty()
-                ? new ResponseEntity<List<MatchDtoWithArenaAndTeams>>(matches, HttpStatus.OK)
+                ? new ResponseEntity<>(matches, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
@@ -58,7 +57,7 @@ public class MatchController {
             @PathVariable final Integer id) throws ResourceNotFoundException {
         final MatchDtoWithArenaAndTeams match = matchService.read(id);
         return match != null
-                ? new ResponseEntity<MatchDtoWithArenaAndTeams>(match, HttpStatus.OK)
+                ? new ResponseEntity<>(match, HttpStatus.OK)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
@@ -85,7 +84,6 @@ public class MatchController {
     public ResponseEntity<Void> updateMatchTime(
             @PathVariable final Integer matchId,
             @RequestParam(value = "time") final LocalDateTime time) throws Exception {
-
         boolean updated = matchService.updateMatchTime(matchId, time);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
@@ -98,5 +96,25 @@ public class MatchController {
         return deleted
                 ? ResponseEntity.status(HttpStatus.OK).build()
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PatchMapping(value = "/{matchId}/add-team")
+    public ResponseEntity<Void> addTeamToMatch(
+            @PathVariable final Integer matchId,
+            @RequestParam(value = "teamId") final Integer teamId) throws Exception {
+        boolean updated = matchService.addTeamToMatch(matchId, teamId);
+        return updated
+                ? ResponseEntity.status(HttpStatus.OK).build()
+                : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @PatchMapping(value = "/{matchId}/remove-team")
+    public ResponseEntity<Void> removeTeamFromMatch(
+            @PathVariable final Integer matchId,
+            @RequestParam(value = "teamId") final Integer teamId) throws Exception {
+        boolean updated = matchService.removeTeamFromMatch(matchId, teamId);
+        return updated
+                ? ResponseEntity.status(HttpStatus.OK).build()
+                : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

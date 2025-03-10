@@ -5,6 +5,7 @@ import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.model.Match;
+import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
 import com.github.everolfe.footballmatches.repository.TeamRepository;
@@ -69,6 +70,33 @@ public class MatchService  {
         return false;
     }
 
+    public boolean addTeamToMatch(final Integer matchId, final Integer teamId) throws Exception {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + matchId));
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team does not exist with ID = " + teamId));
+
+        if (!match.getTeamList().contains(team)) {
+            match.getTeamList().add(team);
+            matchRepository.save(match);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeTeamFromMatch(final Integer matchId, final Integer teamId) throws Exception {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + matchId));
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team does not exist with ID = " + teamId));
+
+        if (match.getTeamList().contains(team)) {
+            match.getTeamList().remove(team);
+            matchRepository.save(match);
+            return true;
+        }
+        return false;
+    }
     public boolean setNewArena(final Integer matchId, final Integer arenaId) throws Exception {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + matchId));
