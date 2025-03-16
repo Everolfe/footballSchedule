@@ -1,16 +1,20 @@
 package com.github.everolfe.footballmatches.service;
 
 
+import com.github.everolfe.footballmatches.cache.Cache;
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDto;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.model.Arena;
+import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -20,11 +24,20 @@ import org.springframework.web.client.ResourceAccessException;
 @AllArgsConstructor
 public class ArenaService {
 
+    private final Cache<String, Object> cache;
     private final ArenaRepository arenaRepository;
     private  final MatchRepository matchRepository;
+    private static final String DOESNT_EXIST = "Arena does not exist with ID = ";
+    private static final String ARENA_CACHE_PREFIX = "arena_";
+    private static final String MATCH_CACHE_PREFIX = "match_";
 
     public void create(Arena arena) {
+        if (arena == null) {
+            throw new ResourceNotFoundException("Arena is null");
+        }
         arenaRepository.save(arena);
+        ArenaDto arenaDto = ConvertDtoClasses.convertToArenaDto(arena);
+        cache.put(ARENA_CACHE_PREFIX + arenaDto.getId().toString(), arenaDto);
     }
 
     public List<ArenaDtoWithMatches> readAll() {
@@ -39,15 +52,22 @@ public class ArenaService {
     }
 
     public ArenaDto read(final Integer id) {
-        return ConvertDtoClasses
-                .convertToArenaDto(arenaRepository.findById(id)
-                        .orElseThrow(() -> new ResourceAccessException("Doesn't exist " + id)));
+        Object cachedArena = cache.get(ARENA_CACHE_PREFIX + id.toString());
+        if (cachedArena != null) {
+            return (ArenaDto) cachedArena;
+        } else {
+            ArenaDto arenaDto =  ConvertDtoClasses.convertToArenaDto(arenaRepository.findById(id)
+                            .orElseThrow(() -> new ResourceAccessException(DOESNT_EXIST + id)));
+            cache.put(ARENA_CACHE_PREFIX + id.toString(), arenaDto);
+            return arenaDto;
+        }
     }
 
     public boolean update(Arena arena, final Integer id) {
         if (arenaRepository.existsById(id)) {
             arena.setId(id);
             arenaRepository.save(arena);
+            cache.put(ARENA_CACHE_PREFIX + id.toString(), arena);
             return true;
         }
         return false;
@@ -56,7 +76,18 @@ public class ArenaService {
 
     public boolean delete(final Integer id) {
         if (arenaRepository.existsById(id)) {
+            Arena arena = arenaRepository.findById(id).orElseThrow(()
+                -> new ResourceAccessException(DOESNT_EXIST + id));
+            List<Match> matchList = arena.getMatchList();
+            if (matchList != null) {
+                for (Match match : matchList) {
+                    match.setArena(null);
+                    cache.put(MATCH_CACHE_PREFIX + match.getId().toString(), match);
+                    matchRepository.save(match);
+                }
+            }
             arenaRepository.deleteById(id);
+            cache.remove(ARENA_CACHE_PREFIX + id.toString());
             return true;
         }
         return false;
