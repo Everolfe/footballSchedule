@@ -14,12 +14,13 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
     @Query("SELECT m FROM Match m WHERE LOWER(m.tournamentName) = LOWER(:tournamentName)")
     List<Match> findByTournamentNameIgnoreCase(@Param("tournamentName") String tournamentName);
 
-    @Query("SELECT m FROM Match m WHERE "
-            + "(:startDate IS NULL OR m.dateTime >= :startDate) AND "
-            + "(:endDate IS NULL OR m.dateTime <= :endDate)")
-    List<Match> findMatchesByDates(@Param("startDate") LocalDateTime startDate,
-                                   @Param("endDate") LocalDateTime endDate);
+    @Query("SELECT m FROM Match m WHERE m.dateTime <= :endDate")
+    List<Match> findByDateTimeLessThanEqual(@Param("endDate") LocalDateTime endDate);
 
-    @Query("SELECT m FROM Match m JOIN m.teamList t WHERE t = :team")
-    List<Match> findByTeam(@Param("team") Team team);
+    @Query("SELECT m FROM Match m WHERE m.dateTime >= :startDate")
+    List<Match> findByDateTimeGreaterThanEqual(@Param("startDate") LocalDateTime startDate);
+
+    @Query("SELECT m FROM Match m WHERE m.dateTime BETWEEN :startDate AND :endDate")
+    List<Match> findByDateTimeBetween(@Param("startDate") LocalDateTime startDate,
+                                      @Param("endDate") LocalDateTime endDate);
 }

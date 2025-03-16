@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,6 +53,16 @@ public class MatchController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @GetMapping(value ="/search/by-dates")
+    public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByDateTime(
+            @RequestParam(value = "startDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(value = "endDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate){
+        List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList =
+                matchService.findMatchesByDates(startDate,endDate);
+        return ResponseEntity.status(HttpStatus.OK).body(matchDtoWithArenaAndTeamsList);
+    }
     @GetMapping(value = "/{id}")
     public ResponseEntity<MatchDtoWithArenaAndTeams> readMatchById(
             @PathVariable final Integer id) throws ResourceNotFoundException {
@@ -117,4 +128,5 @@ public class MatchController {
                 ? ResponseEntity.status(HttpStatus.OK).build()
                 : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
+
 }
