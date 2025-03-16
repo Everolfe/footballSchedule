@@ -68,11 +68,21 @@ public class TeamController {
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @PatchMapping(value = "/{teamId}/add-player")
-    public ResponseEntity<Void> addPlayerToTeam(
+    @PatchMapping(value = "/{teamId}/del-player")
+    public ResponseEntity<Void> deletePlayerFromTeam(
             @PathVariable(name = "teamId") final Integer teamId,
             @RequestParam(value = "playerId") final Integer playerId) throws Exception {
-        boolean updated = teamService.addPlayerToTeam(teamId, playerId);
+        final boolean updated = teamService.deletePlayerFromTeam(teamId,playerId);
+        return updated
+                ? ResponseEntity.status(HttpStatus.OK).build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PatchMapping(value = "/{teamId}/del-match")
+    public ResponseEntity<Void> deleteMatchFromTeam(
+            @PathVariable(name = "teamId") final Integer teamId,
+            @RequestParam(value = "matchId") final Integer matchId) throws Exception {
+        final boolean updated = teamService.deleteMatchFromTeam(teamId, matchId);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -82,10 +92,21 @@ public class TeamController {
     public ResponseEntity<Void> addMatchToTeam(
             @PathVariable(name = "teamId") final Integer teamId,
             @RequestParam(value = "matchId") final Integer matchId) throws Exception {
-        boolean updated = teamService.addMatchToTeam(teamId, matchId);
+        final boolean updated = teamService.addMatchToTeam(teamId, matchId);
         return updated
                 ? ResponseEntity.status(HttpStatus.OK).build()
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PatchMapping(value = "/{teamId}/add-player")
+    public ResponseEntity<Void> addPlayerToTeam(
+            @PathVariable(name = "teamId") final Integer teamId,
+            @RequestParam(value = "playerId") final Integer matchId) throws Exception {
+        final boolean updated = teamService.addPlayerToTeam(teamId, matchId);
+        return updated
+                ? ResponseEntity.status(HttpStatus.OK).build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
     }
 
 
