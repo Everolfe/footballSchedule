@@ -2,6 +2,7 @@ package com.github.everolfe.footballmatches.repository;
 
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.model.Team;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,12 @@ import org.springframework.stereotype.Repository;
 public interface MatchRepository extends JpaRepository<Match, Integer> {
     @Query("SELECT m FROM Match m WHERE LOWER(m.tournamentName) = LOWER(:tournamentName)")
     List<Match> findByTournamentNameIgnoreCase(@Param("tournamentName") String tournamentName);
+
+    @Query("SELECT m FROM Match m WHERE "
+            + "(:startDate IS NULL OR m.dateTime >= :startDate) AND "
+            + "(:endDate IS NULL OR m.dateTime <= :endDate)")
+    List<Match> findMatchesByDates(@Param("startDate") LocalDateTime startDate,
+                                   @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT m FROM Match m JOIN m.teamList t WHERE t = :team")
     List<Match> findByTeam(@Param("team") Team team);
