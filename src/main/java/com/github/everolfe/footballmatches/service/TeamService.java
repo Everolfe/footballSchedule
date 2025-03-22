@@ -1,9 +1,12 @@
 package com.github.everolfe.footballmatches.service;
 
+import com.github.everolfe.footballmatches.aspect.AspectAnnotaion;
 import com.github.everolfe.footballmatches.cache.Cache;
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithMatchesAndPlayers;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
+import com.github.everolfe.footballmatches.exceptions.BadRequestException;
+import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
@@ -14,8 +17,6 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.BadRequestException;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 
@@ -36,10 +37,15 @@ public class TeamService {
     private static final String MATCH_CACHE_PREFIX = "match_";
     private static final String TEAM_CACHE_PREFIX = "team_";
 
+    @AspectAnnotaion
     public void create(Team team) {
+        if (team == null) {
+            throw new BadRequestException("Team is null");
+        }
         teamRepository.save(team);
         cache.put(TEAM_CACHE_PREFIX + team.getId().toString(), team);
     }
+
 
     public List<TeamDtoWithMatchesAndPlayers> readAll() {
         List<Team> teams = teamRepository.findAll();
@@ -53,7 +59,7 @@ public class TeamService {
         return teamDtoWithMatchesAndPlayers;
     }
 
-
+    @AspectAnnotaion
     public TeamDtoWithPlayers read(final Integer id) {
         Object team = cache.get(TEAM_CACHE_PREFIX + id.toString());
         if (team != null) {
@@ -61,13 +67,13 @@ public class TeamService {
         } else {
             TeamDtoWithPlayers teamDtoWithPlayers = ConvertDtoClasses
                     .convertToTeamDtoWithPlayers(teamRepository.findById(id)
-                            .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + id)));
+                            .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + id)));
             cache.put(TEAM_CACHE_PREFIX + id.toString(), teamDtoWithPlayers);
             return teamDtoWithPlayers;
         }
     }
 
-
+    @AspectAnnotaion
     public boolean update(Team team, final Integer id) {
         if (teamRepository.existsById(id)) {
             team.setId(id);
@@ -78,11 +84,11 @@ public class TeamService {
         return false;
     }
 
-
+    @AspectAnnotaion
     public boolean delete(final Integer id) {
         if (teamRepository.existsById(id)) {
             Team team = teamRepository.findById(id).orElseThrow(
-                    () -> new ResourceNotFoundException(DOESNT_EXIST + id));
+                    () -> new ResourcesNotFoundException(DOESNT_EXIST + id));
             List<Player> players = team.getPlayers();
             if (players != null) {
                 for (Player player : players) {
@@ -109,11 +115,12 @@ public class TeamService {
         return false;
     }
 
+    @AspectAnnotaion
     public boolean addPlayerToTeam(final Integer teamId, final Integer playerId) throws Exception {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + teamId));
+                .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + teamId));
         Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new ResourcesNotFoundException(
                         PLAYER_DOESNT_EXIST + playerId));
         if (player.getTeam() != null && player.getTeam().equals(team)) {
             throw new BadRequestException("Player already exists in this team");
@@ -130,12 +137,13 @@ public class TeamService {
         return true;
     }
 
+    @AspectAnnotaion
     public boolean deletePlayerFromTeam(
             final Integer teamId, final Integer playerId) throws Exception {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + teamId));
+                .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + teamId));
         Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new ResourcesNotFoundException(
                         PLAYER_DOESNT_EXIST + playerId));
         if (!team.getPlayers().contains(player)) {
             throw new IllegalArgumentException("Player does not belong to the team");
@@ -149,11 +157,12 @@ public class TeamService {
         return true;
     }
 
+    @AspectAnnotaion
     public boolean addMatchToTeam(final Integer teamId, final Integer matchId) throws Exception {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + teamId));
+                .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + teamId));
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new ResourcesNotFoundException(
                         MATCH_DOESNT_EXIST + matchId));
         if (match.getTeamList().isEmpty()) {
             List<Team> teamList = new ArrayList<>();
@@ -173,12 +182,13 @@ public class TeamService {
         return true;
     }
 
+    @AspectAnnotaion
     public boolean deleteMatchFromTeam(
             final Integer teamId, final Integer matchId) throws Exception {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + teamId));
+                .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + teamId));
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new ResourcesNotFoundException(
                         MATCH_DOESNT_EXIST + matchId));
         if (!match.getTeamList().contains(team)) {
             throw new IllegalArgumentException("Team does not participate in the match");
@@ -194,8 +204,7 @@ public class TeamService {
         return true;
     }
 
-
-
+    @AspectAnnotaion
     public List<TeamDtoWithPlayers> getTeamsByCountry(final String country) {
         List<TeamDtoWithPlayers> teamDtoWithPlayers = new ArrayList<>();
         for (Team team : teamRepository.findByCountryIgnoreCase(country)) {
