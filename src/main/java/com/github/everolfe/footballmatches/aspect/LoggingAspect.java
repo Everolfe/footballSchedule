@@ -34,7 +34,9 @@ public class LoggingAspect {
             String methodName = joinPoint.getSignature().getName();
             String className = joinPoint.getSignature().getDeclaringTypeName();
             Object[] args = joinPoint.getArgs();
-            LOGGER.info(">> {}.{}() - {}", className, methodName, Arrays.toString(args));
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(">> {}.{}() - {}", className, methodName, Arrays.toString(args));
+            }
         }
     }
 
