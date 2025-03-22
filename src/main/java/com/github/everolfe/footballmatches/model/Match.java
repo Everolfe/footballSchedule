@@ -1,6 +1,7 @@
 package com.github.everolfe.footballmatches.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +22,7 @@ import lombok.Data;
 @Entity
 @Table(name = "matches")
 @Data
+@Schema(description = "Match")
 public class Match {
 
     @Id
@@ -41,10 +43,12 @@ public class Match {
     @JoinTable(name = "match_teams",
             joinColumns = @JoinColumn(name = "match_id"),
             inverseJoinColumns = @JoinColumn(name = "team_id"))
+    @Schema(description = "List of teams in match")
     private List<Team> teamList;
 
     @ManyToOne
     @JoinColumn(name = "arena_id")
     @JsonIgnoreProperties("matchList")
+    @Schema(description = "Arena where plays")
     private Arena arena;
 }
