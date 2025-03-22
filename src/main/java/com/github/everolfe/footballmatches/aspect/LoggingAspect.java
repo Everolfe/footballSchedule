@@ -30,10 +30,17 @@ public class LoggingAspect {
 
     @Before(value = "callServiceAnnotation()")
     public void logBefore(final JoinPoint joinPoint) {
+        if (shouldLog(joinPoint)) {
+            String methodName = joinPoint.getSignature().getName();
+            String className = joinPoint.getSignature().getDeclaringTypeName();
+            Object[] args = joinPoint.getArgs();
+            LOGGER.info(">> {}.{}() - {}", className, methodName, Arrays.toString(args));
+        }
+    }
+
+    private boolean shouldLog(JoinPoint joinPoint) {
         String methodName = joinPoint.getSignature().getName();
-        String className = joinPoint.getSignature().getDeclaringTypeName();
-        Object[] args = joinPoint.getArgs();
-        LOGGER.info(">> {}.{}() - {}", className, methodName, Arrays.toString(args));
+        return methodName.startsWith("update");
     }
 
     @AfterReturning(value = "callServiceAnnotation()", returning = "result")
