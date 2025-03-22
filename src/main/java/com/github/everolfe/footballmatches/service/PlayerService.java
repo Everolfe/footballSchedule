@@ -1,9 +1,12 @@
 package com.github.everolfe.footballmatches.service;
 
+import com.github.everolfe.footballmatches.aspect.AspectAnnotaion;
 import com.github.everolfe.footballmatches.cache.Cache;
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.player.PlayerDto;
 import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
+import com.github.everolfe.footballmatches.exceptions.BadRequestException;
+import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.repository.PlayerRepository;
@@ -12,7 +15,6 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 
@@ -28,9 +30,10 @@ public class PlayerService {
     private static final String PLAYER_CACHE_PREFIX = "player_";
     private static final String TEAM_CACHE_PREFIX = "team_";
 
+    @AspectAnnotaion
     public void create(Player player) {
         if (player == null) {
-            throw new ResourceNotFoundException("Arena is null");
+            throw new BadRequestException("Player is null");
         }
         playerRepository.save(player);
         PlayerDto playerDto = ConvertDtoClasses.convertToPlayerDto(player);
@@ -48,35 +51,37 @@ public class PlayerService {
         return playerDtoWithTeams;
     }
 
-
+    @AspectAnnotaion
     public PlayerDto read(final Integer id) {
         Object cachedPlayer = cache.get(PLAYER_CACHE_PREFIX + id);
         if (cachedPlayer != null) {
             return (PlayerDto) cachedPlayer;
         } else {
             PlayerDto playerDto = ConvertDtoClasses.convertToPlayerDto(playerRepository.findById(id)
-                            .orElseThrow(() -> new ResourceNotFoundException(DOESNT_EXIST + id)));
+                            .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + id)));
             cache.put(PLAYER_CACHE_PREFIX + id, playerDto);
             return playerDto;
         }
     }
 
-
+    @AspectAnnotaion
     public boolean update(Player player, final Integer id) {
         if (playerRepository.existsById(id)) {
             player.setId(id);
             playerRepository.save(player);
             cache.put(PLAYER_CACHE_PREFIX + id, player);
             return true;
+        } else {
+            throw new ResourcesNotFoundException(DOESNT_EXIST + id);
         }
-        return false;
+
     }
 
-
+    @AspectAnnotaion
     public boolean delete(final Integer id) {
         if (playerRepository.existsById(id)) {
             Player player = playerRepository.findById(id).orElseThrow(()
-                    -> new ResourceNotFoundException(DOESNT_EXIST + id));
+                    -> new ResourcesNotFoundException(DOESNT_EXIST + id));
             Team team = player.getTeam();
             team.getPlayers().remove(player);
             teamRepository.save(team);
@@ -88,6 +93,7 @@ public class PlayerService {
         return false;
     }
 
+    @AspectAnnotaion
     public List<PlayerDto> getPlayersByAge(final Integer age) {
         List<PlayerDto> playerDto = new ArrayList<>();
         for (Player player : playerRepository.findByAge(age)) {

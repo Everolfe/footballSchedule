@@ -1,5 +1,6 @@
 package com.github.everolfe.footballmatches.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +14,7 @@ import lombok.Data;
 @Entity
 @Table(name = "players")
 @Data
+@Schema(description = "Player")
 public class Player {
 
     @Id
@@ -31,5 +33,6 @@ public class Player {
 
     @ManyToOne
     @JoinColumn(name = "team_id")
+    @Schema(description = "Team where player in")
     private Team team;
 }
