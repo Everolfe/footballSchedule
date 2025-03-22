@@ -4,7 +4,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class Cache<K, V> extends LinkedHashMap<K, V> {
 
