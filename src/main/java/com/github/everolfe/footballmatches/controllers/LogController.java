@@ -53,8 +53,8 @@ public class LogController {
         }
 
         try (Stream<String> lines = Files.lines(logFilePath)) {
-            return lines.filter(line -> line.contains(date)) // Фильтрация строк по дате
-                    .collect(Collectors.toList());
+            return lines.filter(line -> line.contains(date))
+                    .toList();
         }
     }
 }

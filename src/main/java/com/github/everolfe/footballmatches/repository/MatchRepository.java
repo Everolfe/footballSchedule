@@ -1,7 +1,6 @@
 package com.github.everolfe.footballmatches.repository;
 
 import com.github.everolfe.footballmatches.model.Match;
-import com.github.everolfe.footballmatches.model.Team;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
