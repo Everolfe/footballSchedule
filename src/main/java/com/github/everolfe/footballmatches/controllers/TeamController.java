@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "TeamController",
         description = "You can edit and view information about teams")
 @RestController
-@RequestMapping(PathConstants.TEAMS_PATH)
+@RequestMapping("/teams")
 @AllArgsConstructor
 public class TeamController {
 
@@ -43,7 +43,7 @@ public class TeamController {
 
     @Operation(summary = "Creating a team",
             description = "Allow you create a team")
-    @PostMapping(PathConstants.CREATE_PATH)
+    @PostMapping("/create")
     public ResponseEntity<Void> createTeam(
             @Parameter(description = "JSON object of new team ")
             @Valid @RequestBody Team team) {
@@ -61,7 +61,7 @@ public class TeamController {
 
     @Operation(summary = "View all matches by country",
             description = "Allow you to view teams with a given country")
-    @GetMapping(PathConstants.SEARCH_PATH)
+    @GetMapping("/search")
     public ResponseEntity<List<TeamDtoWithPlayers>> readTeamsByCountry(
             @Parameter(description = "Country")
             @RequestParam(value = "country") String country) {
@@ -71,7 +71,7 @@ public class TeamController {
 
     @Operation(summary = "View a team by ID",
             description = "Allow you to view a team with a given ID")
-    @GetMapping(PathConstants.ID_PATH)
+    @GetMapping("/{id}")
     public ResponseEntity<TeamDtoWithPlayers> readTeamById(
             @Parameter(description = "ID of the team to be found ")
             @PathVariable(name = "id") Integer id) {
@@ -81,7 +81,7 @@ public class TeamController {
 
     @Operation(summary = "Сhange team data",
             description = "Allow you to change team data")
-    @PutMapping(PathConstants.UPDATE_PATH)
+    @PutMapping("/update/{id}")
     public ResponseEntity<Void> updateTeam(
             @Parameter(description = "ID of the team to be update data")
             @PathVariable(name = "id") Integer id,
@@ -92,7 +92,7 @@ public class TeamController {
 
     @Operation(summary = "Remove player from team",
             description = "Allow you to delete player from team")
-    @PatchMapping(PathConstants.REMOVE_PLAYER_PATH)
+    @PatchMapping("/{teamId}/remove-player")
     public ResponseEntity<Void> deletePlayerFromTeam(
             @Parameter(description = "ID of the team to be update")
             @PathVariable(name = "teamId") final Integer teamId,
@@ -104,7 +104,7 @@ public class TeamController {
 
     @Operation(summary = "Remove match from team",
             description = "Allow you to delete match from team")
-    @PatchMapping(PathConstants.REMOVE_MATCH_PATH)
+    @PatchMapping("/{teamId}/remove-match")
     public ResponseEntity<Void> deleteMatchFromTeam(
             @Parameter(description = "ID of the team to be update")
             @PathVariable(name = "teamId") final Integer teamId,
@@ -116,7 +116,7 @@ public class TeamController {
 
     @Operation(summary = "Add match to team",
             description = "Allow you to add match to team")
-    @PatchMapping(PathConstants.ADD_MATCH_PATH)
+    @PatchMapping("/{teamId}/add-match")
     public ResponseEntity<Void> addMatchToTeam(
             @Parameter(description = "ID of the team to be update")
             @PathVariable(name = "teamId") final Integer teamId,
@@ -128,7 +128,7 @@ public class TeamController {
 
     @Operation(summary = "Add player to team",
             description = "Allow you to add player to team")
-    @PatchMapping(PathConstants.ADD_PLAYER_PATH)
+    @PatchMapping("/{teamId}/add-player")
     public ResponseEntity<Void> addPlayerToTeam(
             @Parameter(description = "ID of the team to be update")
             @PathVariable(name = "teamId") final Integer teamId,
@@ -140,7 +140,7 @@ public class TeamController {
 
     @Operation(summary = "Delete team",
             description = "Allow you to delete team by it ID")
-    @DeleteMapping(PathConstants.ID_PATH)
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTeam(
             @Parameter(description = "ID of the team to be delete")
             @PathVariable(name = "id") Integer id) {

@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "ArenaController",
     description = "You can edit and view information about arenas")
 @RestController
-@RequestMapping(PathConstants.ARENAS_PATH)
+@RequestMapping("/arenas")
 @AllArgsConstructor
 public class ArenaController {
     private final ArenaService arenaService;
@@ -40,7 +40,7 @@ public class ArenaController {
 
     @Operation(summary = "Creating an arena",
             description = "Allow you create an arena")
-    @PostMapping(PathConstants.CREATE_PATH)
+    @PostMapping("/create")
     public ResponseEntity<Void> createArena(
             @Parameter(description = "JSON object of new arena ")
             @Valid @RequestBody final Arena arena) {
@@ -58,7 +58,7 @@ public class ArenaController {
 
     @Operation(summary = "View all arenas by capacity",
             description = "Allow you to view arenas with a given capacity")
-    @GetMapping(PathConstants.SEARCH_PATH)
+    @GetMapping("/search")
     public ResponseEntity<List<ArenaDto>> readArenasByCapacity(
             @Parameter(description = "Min value of capacity ")
             @RequestParam(required = false) Integer minCapacity,
@@ -70,7 +70,7 @@ public class ArenaController {
 
     @Operation(summary = "View an arena by ID",
             description = "Allow you to view an arena with a given ID")
-    @GetMapping(PathConstants.ID_PATH)
+    @GetMapping("/{id}")
     public ResponseEntity<ArenaDto> readArenaById(
             @Parameter(description = "ID of the arena to be found ")
             @PathVariable(name = "id") final Integer id)
@@ -81,7 +81,7 @@ public class ArenaController {
 
     @Operation(summary = "Сhange arena data",
             description = "Allow you to change arena data")
-    @PutMapping(PathConstants.UPDATE_PATH)
+    @PutMapping("/update/{id}")
     public ResponseEntity<Void> updateArena(
             @Parameter(description = "ID of the arena to be update data")
             @PathVariable(name = "id") final Integer id,
@@ -93,7 +93,7 @@ public class ArenaController {
 
     @Operation(summary = "Delete arena",
             description = "Allow you to delete arena by it ID")
-    @DeleteMapping(PathConstants.ID_PATH)
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteArena(
             @Parameter(description = "ID of the arena to be delete")
             @PathVariable(name = "id") final Integer id)

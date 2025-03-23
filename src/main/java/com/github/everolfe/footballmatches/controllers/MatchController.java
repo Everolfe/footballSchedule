@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "MatchController",
      description = "You can edit and view information about matches")
 @RestController
-@RequestMapping(PathConstants.MATCHES_PATH)
+@RequestMapping("/matches")
 @AllArgsConstructor
 public class MatchController {
 
@@ -44,7 +44,7 @@ public class MatchController {
 
     @Operation(summary = "Creating a match",
             description = "Allow you create a match")
-    @PostMapping(PathConstants.CREATE_PATH)
+    @PostMapping("/create")
     public ResponseEntity<Void> createMatch(
             @Parameter(description = "JSON object of new match ")
             @Valid @RequestBody Match match) {
@@ -62,7 +62,7 @@ public class MatchController {
 
     @Operation(summary = "View all matches by tournament name",
             description = "Allow you to view matches with a given tournament name")
-    @GetMapping(PathConstants.SEARCH_PATH)
+    @GetMapping("/search")
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByTournament(
             @Parameter(description = "Tournament name")
             @RequestParam(value = "tournament") String tournamentName) {
@@ -73,7 +73,7 @@ public class MatchController {
 
     @Operation(summary = "View all matches by date and time",
             description = "Allow you to view matches with a given date and time")
-    @GetMapping(PathConstants.SEARCH_BY_DATE_PATH)
+    @GetMapping("/search/by-date")
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByDateTime(
             @Parameter(description = "Min value of date")
             @RequestParam(value = "startDate", required = false)
@@ -88,7 +88,7 @@ public class MatchController {
 
     @Operation(summary = "View a match by ID",
             description = "Allow you to view a match with a given ID")
-    @GetMapping(PathConstants.ID_PATH)
+    @GetMapping("/{id}")
     public ResponseEntity<MatchDtoWithArenaAndTeams> readMatchById(
             @Parameter(description = "ID of the match to be found ")
             @PathVariable final Integer id) throws ResourcesNotFoundException {
@@ -98,7 +98,7 @@ public class MatchController {
 
     @Operation(summary = "Сhange match data",
             description = "Allow you to change match data")
-    @PutMapping(PathConstants.UPDATE_PATH)
+    @PutMapping("/{id}")
     public ResponseEntity<Void> updateMatch(
             @Parameter(description = "ID of the match to be update data")
             @PathVariable final Integer id,
@@ -110,7 +110,7 @@ public class MatchController {
 
     @Operation(summary = "Set new arena to match",
             description = "Allow you to change arena in match")
-    @PatchMapping(PathConstants.SET_ARENA_PATH)
+    @PatchMapping("/{matchId}/set-arena")
     public ResponseEntity<Void> setNewArena(
             @Parameter(description = "ID of the match to be update arena")
             @PathVariable final Integer matchId,
@@ -122,7 +122,7 @@ public class MatchController {
 
     @Operation(summary = "Set new date to match",
             description = "Allow you to change date in match")
-    @PatchMapping(PathConstants.SET_TIME_PATH)
+    @PatchMapping("/{matchId}/set-time")
     public ResponseEntity<Void> updateMatchTime(
             @Parameter(description = "ID of the match to be update date")
             @PathVariable final Integer matchId,
@@ -134,7 +134,7 @@ public class MatchController {
 
     @Operation(summary = "Delete match",
             description = "Allow you to delete match by it ID")
-    @DeleteMapping(PathConstants.ID_PATH)
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMatch(
             @Parameter(description = "ID of the match to be delete")
             @PathVariable final Integer id)
@@ -144,7 +144,7 @@ public class MatchController {
 
     @Operation(summary = "Add team to match",
             description = "Allow you to add team to match")
-    @PatchMapping(PathConstants.ADD_TEAM_PATH)
+    @PatchMapping("/{matchId}/add-team")
     public ResponseEntity<Void> addTeamToMatch(
             @Parameter(description = "ID of the match to be update")
             @PathVariable final Integer matchId,
@@ -156,7 +156,7 @@ public class MatchController {
 
     @Operation(summary = "Remove team from match",
             description = "Allow you to remove team from match")
-    @PatchMapping(PathConstants.REMOVE_TEAM_PATH)
+    @PatchMapping("/{matchId}/remove-team")
     public ResponseEntity<Void> removeTeamFromMatch(
             @Parameter(description = "ID of the match to be update")
             @PathVariable final Integer matchId,

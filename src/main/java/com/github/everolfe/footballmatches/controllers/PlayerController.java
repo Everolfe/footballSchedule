@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "PlayerController",
         description = "You can edit and view information about players")
 @RestController
-@RequestMapping(PathConstants.PLAYERS_PATH)
+@RequestMapping("/players")
 @AllArgsConstructor
 public class PlayerController {
 
@@ -42,7 +42,7 @@ public class PlayerController {
 
     @Operation(summary = "Creating a player",
             description = "Allow you create a player")
-    @PostMapping(PathConstants.CREATE_PATH)
+    @PostMapping("/create")
     public ResponseEntity<Void> createPlayer(
             @Parameter(description = "JSON object of new player ")
             @Valid @RequestBody Player player) {
@@ -60,7 +60,7 @@ public class PlayerController {
 
     @Operation(summary = "View a player by ID",
             description = "Allow you to view a player with a given ID")
-    @GetMapping(PathConstants.ID_PATH)
+    @GetMapping("/{id}")
     public ResponseEntity<PlayerDto> readPlayerById(
             @Parameter(description = "ID of the player to be found ")
             @PathVariable(name = "id") Integer id)
@@ -71,7 +71,7 @@ public class PlayerController {
 
     @Operation(summary = "View all matches by age",
             description = "Allow you to view matches by a given age")
-    @GetMapping(PathConstants.SEARCH_PATH)
+    @GetMapping("/search")
     public ResponseEntity<List<PlayerDto>> readPlayersByAge(
             @Parameter(description = "Value of age")
             @RequestParam(value = "age") Integer age) {
@@ -81,7 +81,7 @@ public class PlayerController {
 
     @Operation(summary = "Сhange player data",
             description = "Allow you to change player data")
-    @PutMapping(PathConstants.UPDATE_PATH)
+    @PutMapping("/update/{id}")
     public ResponseEntity<Void> updatePlayer(
             @Parameter(description = "ID of the player to be update data")
             @PathVariable(name = "id") Integer id,
@@ -93,7 +93,7 @@ public class PlayerController {
 
     @Operation(summary = "Delete player",
             description = "Allow you to delete player by it ID")
-    @DeleteMapping(PathConstants.ID_PATH)
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlayer(
             @Parameter(description = "ID of the player to be delete")
             @PathVariable(name = "id") Integer id)
