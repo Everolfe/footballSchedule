@@ -13,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.Data;
 
@@ -27,9 +29,13 @@ public class Team {
     @Column(name = "id")
     private Integer id;
 
+    @NotNull(message = "Team name cannot be null")
+    @Size(min = 1, max = 100, message = "Team name must be between 1 and 100 characters")
     @Column(name = "team_name")
     private String teamName;
 
+    @NotNull(message = "Country  cannot be null")
+    @Size(min = 1, max = 100, message = "Country must be between 1 and 100 characters")
     @Column(name = "country")
     private String country;
 

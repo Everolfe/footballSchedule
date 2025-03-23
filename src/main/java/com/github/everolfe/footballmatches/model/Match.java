@@ -14,6 +14,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
@@ -30,9 +32,12 @@ public class Match {
     @Column(name = "id")
     private Integer id;
 
+    @NotNull(message = "Date and time cannot be null")
     @Column(name = "date_time")
     private LocalDateTime dateTime;
 
+    @NotNull(message = "Tournament name cannot be null")
+    @Size(min = 1, max = 100, message = "Tournament name must be between 1 and 100 characters")
     @Column(name = "tournament_name")
     private String tournamentName;
 
