@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,79 +27,73 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "PlayerController",
         description = "You can edit and view information about players")
 @RestController
-@RequestMapping("/players")
+@RequestMapping(PathConstants.PLAYERS_PATH)
 @AllArgsConstructor
 public class PlayerController {
 
     private final PlayerService playerService;
 
+    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition){
+        return condition
+                ? ResponseEntity.ok(body)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
     @Operation(summary = "Creating a player",
-            description = "Allows you create a player")
-    @PostMapping(value = "/create")
+            description = "Allow you create a player")
+    @PostMapping(PathConstants.CREATE_PATH)
     public ResponseEntity<Void> createPlayer(
             @Parameter(description = "JSON object of new player ")
-            @RequestBody Player player) {
+            @Valid @RequestBody Player player) {
         playerService.create(player);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "View all players",
-            description = "Allows you to view all players")
+            description = "Allow you to view all players")
     @GetMapping
     public ResponseEntity<List<PlayerDtoWithTeam>> readAllPlayers() {
         final List<PlayerDtoWithTeam> players = playerService.readAll();
-        return players != null && !players.isEmpty()
-                ? new ResponseEntity<List<PlayerDtoWithTeam>>(players, HttpStatus.OK)
-                : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return handleResponse(players,!players.isEmpty());
     }
 
     @Operation(summary = "View a player by ID",
-            description = "Allows you to view a player with a given ID")
-    @GetMapping(value = "/{id}")
+            description = "Allow you to view a player with a given ID")
+    @GetMapping(PathConstants.ID_PATH)
     public ResponseEntity<PlayerDto> readPlayerById(
             @Parameter(description = "ID of the player to be found ")
             @PathVariable(name = "id") Integer id) {
         final PlayerDto player = playerService.read(id);
-        return  player != null
-                ? new ResponseEntity<PlayerDto>(player, HttpStatus.OK)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return handleResponse(player,player!=null);
     }
 
     @Operation(summary = "View all matches by age",
-            description = "Allows you to view matches by a given age")
-    @GetMapping(value = "/search")
+            description = "Allow you to view matches by a given age")
+    @GetMapping(PathConstants.SEARCH_PATH)
     public ResponseEntity<List<PlayerDto>> readPlayersByAge(
             @Parameter(description = "Value of age")
             @RequestParam(value = "age") Integer age) {
         final List<PlayerDto> players = playerService.getPlayersByAge(age);
-        return players != null && !players.isEmpty()
-                ? new ResponseEntity<List<PlayerDto>>(players, HttpStatus.OK)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return handleResponse(players,!players.isEmpty());
     }
 
     @Operation(summary = "Сhange player data",
-            description = "Allows you to change player data")
-    @PutMapping(value = "/update/{id}")
+            description = "Allow you to change player data")
+    @PutMapping(PathConstants.UPDATE_PATH)
     public ResponseEntity<Void> updatePlayer(
             @Parameter(description = "ID of the player to be update data")
             @PathVariable(name = "id") Integer id,
             @Parameter(description = "New data")
-            @RequestBody Player player) {
-        final boolean updated = playerService.update(player, id);
-        return updated
-                ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            @Valid @RequestBody Player player) {
+        return handleResponse(null,playerService.update(player, id));
     }
 
     @Operation(summary = "Delete player",
-            description = "Allows you to delete player by it ID")
-    @DeleteMapping(value = "/{id}")
+            description = "Allow you to delete player by it ID")
+    @DeleteMapping(PathConstants.ID_PATH)
     public ResponseEntity<Void> deletePlayer(
             @Parameter(description = "ID of the player to be delete")
             @PathVariable(name = "id") Integer id) {
-        final boolean deleted = playerService.delete(id);
-        return deleted
-                ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return handleResponse(null,playerService.delete(id));
     }
 }

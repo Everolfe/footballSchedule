@@ -7,6 +7,7 @@ import com.github.everolfe.footballmatches.service.ArenaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,80 +26,74 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "ArenaController",
     description = "You can edit and view information about arenas")
 @RestController
-@RequestMapping("/arenas")
+@RequestMapping(PathConstants.ARENAS_PATH)
 @AllArgsConstructor
 public class ArenaController {
     private final ArenaService arenaService;
 
+    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition){
+        return condition
+                ? ResponseEntity.ok(body)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
     @Operation(summary = "Creating an arena",
-            description = "Allows you create an arena")
-    @PostMapping(value = "/create")
+            description = "Allow you create an arena")
+    @PostMapping(PathConstants.CREATE_PATH)
     public ResponseEntity<Void> createArena(
             @Parameter(description = "JSON object of new arena ")
-            @RequestBody Arena arena) {
+            @Valid @RequestBody final Arena arena) {
         arenaService.create(arena);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Operation(summary = "View all arenas",
-            description = "Allows you to view all arenas")
+            description = "Allow you to view all arenas")
     @GetMapping
     public ResponseEntity<List<ArenaDtoWithMatches>> readAllArenas() {
         final List<ArenaDtoWithMatches> arenas = arenaService.readAll();
-        return arenas != null && !arenas.isEmpty()
-                ? new ResponseEntity<List<ArenaDtoWithMatches>>(arenas, HttpStatus.OK)
-                : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return handleResponse(arenas, !arenas.isEmpty());
     }
 
     @Operation(summary = "View all arenas by capacity",
-            description = "Allows you to view arenas with a given capacity")
-    @GetMapping(value = "/search")
+            description = "Allow you to view arenas with a given capacity")
+    @GetMapping(PathConstants.SEARCH_PATH)
     public ResponseEntity<List<ArenaDto>> readArenasByCapacity(
             @Parameter(description = "Min value of capacity ")
             @RequestParam(required = false) Integer minCapacity,
             @Parameter(description = "Max value of capacity ")
             @RequestParam(required = false) Integer maxCapacity) {
         final List<ArenaDto> arenas = arenaService.getArenasByCapacity(minCapacity, maxCapacity);
-        return arenas != null && !arenas.isEmpty()
-                ? new ResponseEntity<List<ArenaDto>>(arenas, HttpStatus.OK)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return handleResponse(arenas, !arenas.isEmpty());
     }
 
     @Operation(summary = "View an arena by ID",
-            description = "Allows you to view an arena with a given ID")
-    @GetMapping(value = "/{id}")
+            description = "Allow you to view an arena with a given ID")
+    @GetMapping(PathConstants.ID_PATH)
     public ResponseEntity<ArenaDto> readArenaById(
             @Parameter(description = "ID of the arena to be found ")
             @PathVariable(name = "id") final Integer id) {
         final ArenaDto arena = arenaService.read(id);
-        return arena != null
-                ? new ResponseEntity<ArenaDto>(arena, HttpStatus.OK)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return handleResponse(arena, arena!=null);
     }
 
     @Operation(summary = "Сhange arena data",
-            description = "Allows you to change arena data")
-    @PutMapping(value = "/update/{id}")
+            description = "Allow you to change arena data")
+    @PutMapping(PathConstants.UPDATE_PATH)
     public ResponseEntity<Void> updateArena(
             @Parameter(description = "ID of the arena to be update data")
             @PathVariable(name = "id") final Integer id,
             @Parameter(description = "New data")
-            @RequestBody Arena arena) {
-        final boolean updated = arenaService.update(arena, id);
-        return updated
-                ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            @Valid @RequestBody Arena arena) {
+        return handleResponse(null,arenaService.update(arena, id));
     }
 
     @Operation(summary = "Delete arena",
-            description = "Allows you to delete arena by it ID")
-    @DeleteMapping(value = "/{id}")
+            description = "Allow you to delete arena by it ID")
+    @DeleteMapping(PathConstants.ID_PATH)
     public ResponseEntity<Void> deleteArena(
             @Parameter(description = "ID of the arena to be delete")
             @PathVariable(name = "id") final Integer id) {
-        final boolean deleted = arenaService.delete(id);
-        return deleted
-                ? ResponseEntity.status(HttpStatus.OK).build()
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return handleResponse(null, arenaService.delete(id));
     }
 }
