@@ -24,7 +24,7 @@ public class LoggingAspect {
     private void allServiceMethods() {
     }
 
-    @Pointcut("@annotation(AspectAnnotaion)")
+    @Pointcut("@annotation(com.github.everolfe.footballmatches.aspect.AspectAnnotation)")
     private void callServiceAnnotation() {
     }
 

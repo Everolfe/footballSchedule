@@ -1,5 +1,8 @@
 package com.github.everolfe.footballmatches.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,14 +19,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
+@Tag(name = "LogController",
+    description = "Allow to get the log file by the specified date")
 @RestController
-@RequestMapping("/logs")
+@RequestMapping(PathConstants.LOGS_PATH)
 public class LogController {
 
     private static final String LOG_FILE_PATH = "./logs/logfile.log"; // Путь к общему лог-файлу
 
+    @Operation(summary = "Get log file by date",
+            description = "Allow you to get log file by specified date")
     @GetMapping
-    public ResponseEntity<Resource> getLogsByDate(@RequestParam String date) {
+    public ResponseEntity<Resource> getLogsByDate(
+            @Parameter(description = "Log date")
+            @RequestParam String date) {
         try {
             List<String> filteredLogs = filterLogsByDate(date);
             if (filteredLogs.isEmpty()) {
