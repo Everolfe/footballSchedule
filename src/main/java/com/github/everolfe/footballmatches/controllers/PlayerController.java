@@ -2,6 +2,7 @@ package com.github.everolfe.footballmatches.controllers;
 
 import com.github.everolfe.footballmatches.dto.player.PlayerDto;
 import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
+import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.service.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,7 +63,8 @@ public class PlayerController {
     @GetMapping(PathConstants.ID_PATH)
     public ResponseEntity<PlayerDto> readPlayerById(
             @Parameter(description = "ID of the player to be found ")
-            @PathVariable(name = "id") Integer id) {
+            @PathVariable(name = "id") Integer id)
+            throws ResourcesNotFoundException {
         final PlayerDto player = playerService.read(id);
         return handleResponse(player,player!=null);
     }
@@ -84,7 +86,8 @@ public class PlayerController {
             @Parameter(description = "ID of the player to be update data")
             @PathVariable(name = "id") Integer id,
             @Parameter(description = "New data")
-            @Valid @RequestBody Player player) {
+            @Valid @RequestBody Player player)
+            throws ResourcesNotFoundException {
         return handleResponse(null,playerService.update(player, id));
     }
 
@@ -93,7 +96,8 @@ public class PlayerController {
     @DeleteMapping(PathConstants.ID_PATH)
     public ResponseEntity<Void> deletePlayer(
             @Parameter(description = "ID of the player to be delete")
-            @PathVariable(name = "id") Integer id) {
+            @PathVariable(name = "id") Integer id)
+            throws ResourcesNotFoundException {
         return handleResponse(null,playerService.delete(id));
     }
 }

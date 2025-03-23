@@ -2,6 +2,8 @@ package com.github.everolfe.footballmatches.controllers;
 
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithMatchesAndPlayers;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
+import com.github.everolfe.footballmatches.exceptions.BadRequestException;
+import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -95,7 +97,8 @@ public class TeamController {
             @Parameter(description = "ID of the team to be update")
             @PathVariable(name = "teamId") final Integer teamId,
             @Parameter(description = "ID of removing player")
-            @RequestParam(value = "playerId") final Integer playerId) throws Exception {
+            @RequestParam(value = "playerId") final Integer playerId)
+            throws ResourcesNotFoundException, BadRequestException {
         return handleResponse(null,teamService.deletePlayerFromTeam(teamId, playerId));
     }
 
@@ -106,7 +109,8 @@ public class TeamController {
             @Parameter(description = "ID of the team to be update")
             @PathVariable(name = "teamId") final Integer teamId,
             @Parameter(description = "ID of removing match")
-            @RequestParam(value = "matchId") final Integer matchId) throws Exception {
+            @RequestParam(value = "matchId") final Integer matchId)
+            throws ResourcesNotFoundException, BadRequestException {
         return handleResponse(null,teamService.deleteMatchFromTeam(teamId, matchId));
     }
 
@@ -117,7 +121,8 @@ public class TeamController {
             @Parameter(description = "ID of the team to be update")
             @PathVariable(name = "teamId") final Integer teamId,
             @Parameter(description = "ID of added match")
-            @RequestParam(value = "matchId") final Integer matchId) throws Exception {
+            @RequestParam(value = "matchId") final Integer matchId)
+            throws ResourcesNotFoundException, BadRequestException {
         return handleResponse(null,teamService.addMatchToTeam(teamId, matchId));
     }
 
@@ -128,7 +133,8 @@ public class TeamController {
             @Parameter(description = "ID of the team to be update")
             @PathVariable(name = "teamId") final Integer teamId,
             @Parameter(description = "ID of added player")
-            @RequestParam(value = "playerId") final Integer matchId) throws Exception {
+            @RequestParam(value = "playerId") final Integer matchId)
+            throws ResourcesNotFoundException, BadRequestException {
         return handleResponse(null,teamService.addPlayerToTeam(teamId, matchId));
     }
 

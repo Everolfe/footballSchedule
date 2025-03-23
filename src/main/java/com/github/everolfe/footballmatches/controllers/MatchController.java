@@ -1,6 +1,7 @@
 package com.github.everolfe.footballmatches.controllers;
 
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
+import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.service.MatchService;
@@ -102,7 +103,8 @@ public class MatchController {
             @Parameter(description = "ID of the match to be update data")
             @PathVariable final Integer id,
             @Parameter(description = "New data")
-            @Valid @RequestBody Match match) {
+            @Valid @RequestBody Match match)
+            throws ResourcesNotFoundException {
         return handleResponse(null,matchService.update(match,id));
     }
 
@@ -135,7 +137,8 @@ public class MatchController {
     @DeleteMapping(PathConstants.ID_PATH)
     public ResponseEntity<Void> deleteMatch(
             @Parameter(description = "ID of the match to be delete")
-            @PathVariable final Integer id) {
+            @PathVariable final Integer id)
+           throws ResourcesNotFoundException {
         return handleResponse(null,matchService.delete(id));
     }
 
@@ -147,7 +150,7 @@ public class MatchController {
             @PathVariable final Integer matchId,
             @Parameter(description = "ID of added team")
             @RequestParam(value = "teamId") final Integer teamId)
-            throws ResourcesNotFoundException {
+            throws ResourcesNotFoundException, BadRequestException {
         return handleResponse(null,matchService.addTeamToMatch(matchId,teamId));
     }
 
@@ -159,7 +162,7 @@ public class MatchController {
             @PathVariable final Integer matchId,
             @Parameter(description = "ID of removing team")
             @RequestParam(value = "teamId") final Integer teamId)
-            throws ResourcesNotFoundException {
+            throws ResourcesNotFoundException, BadRequestException {
         return handleResponse(null,matchService.removeTeamFromMatch(matchId,teamId));
     }
 
