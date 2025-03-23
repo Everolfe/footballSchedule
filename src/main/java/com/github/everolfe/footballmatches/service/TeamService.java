@@ -1,11 +1,13 @@
 package com.github.everolfe.footballmatches.service;
 
-import com.github.everolfe.footballmatches.aspect.AspectAnnotaion;
+import com.github.everolfe.footballmatches.aspect.AspectAnnotation;
 import com.github.everolfe.footballmatches.cache.Cache;
+import com.github.everolfe.footballmatches.cache.CacheConstants;
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithMatchesAndPlayers;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
+import com.github.everolfe.footballmatches.exceptions.NotExistMessage;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.model.Player;
@@ -30,27 +32,22 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
     private final  PlayerRepository playerRepository;
-    private static final String DOESNT_EXIST = "The team does not exist with ID = ";
-    private static final String MATCH_DOESNT_EXIST = "Match does not exist with ID = ";
-    private static final String PLAYER_DOESNT_EXIST = "Player does not exist with ID = ";
-    private static final String PLAYER_CACHE_PREFIX = "player_";
-    private static final String MATCH_CACHE_PREFIX = "match_";
-    private static final String TEAM_CACHE_PREFIX = "team_";
 
-    @AspectAnnotaion
+    @AspectAnnotation
     public void create(Team team) {
         if (team == null) {
             throw new BadRequestException("Team is null");
         }
         teamRepository.save(team);
-        cache.put(TEAM_CACHE_PREFIX + team.getId().toString(), team);
+        cache.put(CacheConstants.getTeamCacheKey(team.getId()), team);
     }
 
 
+    @AspectAnnotation
     public List<TeamDtoWithMatchesAndPlayers> readAll() {
         List<Team> teams = teamRepository.findAll();
         List<TeamDtoWithMatchesAndPlayers> teamDtoWithMatchesAndPlayers = new ArrayList<>();
-        if (teams != null) {
+        if (!teams.isEmpty()) {
             for (Team team : teams) {
                 teamDtoWithMatchesAndPlayers.add(ConvertDtoClasses
                         .convertToTeamDtoWithMatchesAndPlayers(team));
@@ -59,69 +56,72 @@ public class TeamService {
         return teamDtoWithMatchesAndPlayers;
     }
 
-    @AspectAnnotaion
+    @AspectAnnotation
     public TeamDtoWithPlayers read(final Integer id) {
-        Object team = cache.get(TEAM_CACHE_PREFIX + id.toString());
+        Object team = cache.get(CacheConstants.getTeamCacheKey(id));
         if (team != null) {
             return (TeamDtoWithPlayers) team;
         } else {
             TeamDtoWithPlayers teamDtoWithPlayers = ConvertDtoClasses
                     .convertToTeamDtoWithPlayers(teamRepository.findById(id)
-                            .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + id)));
-            cache.put(TEAM_CACHE_PREFIX + id.toString(), teamDtoWithPlayers);
+                            .orElseThrow(() -> new ResourcesNotFoundException(
+                                    NotExistMessage.getTeamNotExistMessage(id))));
+            cache.put(CacheConstants.getTeamCacheKey(id), teamDtoWithPlayers);
             return teamDtoWithPlayers;
         }
     }
 
-    @AspectAnnotaion
+    @AspectAnnotation
     public boolean update(Team team, final Integer id) {
-        if (teamRepository.existsById(id)) {
-            team.setId(id);
-            teamRepository.save(team);
-            cache.put(TEAM_CACHE_PREFIX + id.toString(), team);
-            return true;
-        }
-        return false;
+        return teamRepository.findById(id)
+                .map(existingTeam -> {
+                    team.setId(id);
+                    teamRepository.save(team);
+                    cache.put(CacheConstants.getTeamCacheKey(id), team);
+                    return true;
+                })
+                .orElseThrow(() -> new ResourcesNotFoundException(
+                        NotExistMessage.getTeamNotExistMessage(id)));
     }
 
-    @AspectAnnotaion
+    @AspectAnnotation
     public boolean delete(final Integer id) {
-        if (teamRepository.existsById(id)) {
-            Team team = teamRepository.findById(id).orElseThrow(
-                    () -> new ResourcesNotFoundException(DOESNT_EXIST + id));
-            List<Player> players = team.getPlayers();
-            if (players != null) {
-                for (Player player : players) {
-                    player.setTeam(null);
-                    cache.put(PLAYER_CACHE_PREFIX + player.getId().toString(), player);
-                    playerRepository.save(player);
-                }
+        Team team = teamRepository.findById(id)
+                .orElseThrow(() -> new ResourcesNotFoundException(
+                        NotExistMessage.getTeamNotExistMessage(id)));
+        List<Player> players = team.getPlayers();
+        if (players != null) {
+            for (Player player : players) {
+                player.setTeam(null);
+                cache.put(CacheConstants.getPlayerCacheKey(player.getId()), player);
+                playerRepository.save(player);
             }
-            List<Match> matches = team.getMatches();
-            if (matches != null) {
-                for (Match match : matches) {
-                    List<Team> teamList = match.getTeamList();
-                    if (teamList != null) {
-                        teamList.removeIf(team2 -> team.getId().equals(team2.getId()));
-                        cache.put(MATCH_CACHE_PREFIX + match.getId().toString(), match);
-                        matchRepository.save(match);
-                    }
-                }
-            }
-            teamRepository.deleteById(id);
-            cache.remove(TEAM_CACHE_PREFIX + id.toString());
-            return true;
         }
-        return false;
+        List<Match> matches = team.getMatches();
+        if (matches != null) {
+            for (Match match : matches) {
+                List<Team> teamList = match.getTeamList();
+                if (teamList != null) {
+                    teamList.removeIf(team2 -> team.getId().equals(team2.getId()));
+                    cache.put(CacheConstants.getMatchCacheKey(match.getId()), match);
+                    matchRepository.save(match);
+                }
+            }
+        }
+        teamRepository.deleteById(id);
+        cache.remove(CacheConstants.getTeamCacheKey(id));
+        return true;
     }
 
-    @AspectAnnotaion
-    public boolean addPlayerToTeam(final Integer teamId, final Integer playerId) throws Exception {
+    @AspectAnnotation
+    public boolean addPlayerToTeam(final Integer teamId, final Integer playerId)
+            throws ResourcesNotFoundException, BadRequestException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + teamId));
+                .orElseThrow(() -> new ResourcesNotFoundException(
+                        NotExistMessage.getTeamNotExistMessage(teamId)));
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        PLAYER_DOESNT_EXIST + playerId));
+                        NotExistMessage.getPlayerNotExistMessage(playerId)));
         if (player.getTeam() != null && player.getTeam().equals(team)) {
             throw new BadRequestException("Player already exists in this team");
         }
@@ -131,45 +131,49 @@ public class TeamService {
         }
         team.getPlayers().add(player);
         teamRepository.save(team);
-        cache.put(TEAM_CACHE_PREFIX + teamId.toString(), team);
+        cache.put(CacheConstants.getTeamCacheKey(teamId), team);
         playerRepository.save(player);
-        cache.put(PLAYER_CACHE_PREFIX + playerId.toString(), player);
+        cache.put(CacheConstants.getPlayerCacheKey(playerId), player);
         return true;
     }
 
-    @AspectAnnotaion
+    @AspectAnnotation
     public boolean deletePlayerFromTeam(
-            final Integer teamId, final Integer playerId) throws Exception {
+            final Integer teamId, final Integer playerId)
+            throws ResourcesNotFoundException, BadRequestException{
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + teamId));
+                .orElseThrow(() -> new ResourcesNotFoundException(
+                        NotExistMessage.getTeamNotExistMessage(teamId)));
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        PLAYER_DOESNT_EXIST + playerId));
+                        NotExistMessage.getPlayerNotExistMessage(playerId)));
         if (!team.getPlayers().contains(player)) {
-            throw new IllegalArgumentException("Player does not belong to the team");
+            throw new BadRequestException("Player does not belong to the team");
         }
         player.setTeam(null);
         playerRepository.save(player);
         team.getPlayers().remove(player);
         teamRepository.save(team);
-        cache.put(PLAYER_CACHE_PREFIX + playerId.toString(), player);
-        cache.put(TEAM_CACHE_PREFIX + teamId.toString(), team);
+        cache.put(CacheConstants.getPlayerCacheKey(playerId), player);
+        cache.put(CacheConstants.getTeamCacheKey(teamId), team);
         return true;
     }
 
-    @AspectAnnotaion
-    public boolean addMatchToTeam(final Integer teamId, final Integer matchId) throws Exception {
+    @AspectAnnotation
+    public boolean addMatchToTeam(final Integer teamId, final Integer matchId)
+            throws ResourcesNotFoundException, BadRequestException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + teamId));
+                .orElseThrow(() -> new ResourcesNotFoundException(
+                        NotExistMessage.getTeamNotExistMessage(teamId)));
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        MATCH_DOESNT_EXIST + matchId));
+                        NotExistMessage.getMatchNotExistMessage(matchId)));
         if (match.getTeamList().isEmpty()) {
             List<Team> teamList = new ArrayList<>();
             teamList.add(team);
             match.setTeamList(teamList);
             matchRepository.save(match);
-            cache.put(MATCH_CACHE_PREFIX + matchId.toString(), match);
+            cache.put(CacheConstants.getMatchCacheKey(matchId), match);
         } else if (match.getTeamList().contains(team)) {
             throw new BadRequestException("Match already exists");
         } else if (match.getTeamList().size() >= 2) {
@@ -177,34 +181,36 @@ public class TeamService {
         } else {
             match.getTeamList().add(team);
             matchRepository.save(match);
-            cache.put(MATCH_CACHE_PREFIX + matchId.toString(), match);
+            cache.put(CacheConstants.getMatchCacheKey(matchId), match);
         }
         return true;
     }
 
-    @AspectAnnotaion
+    @AspectAnnotation
     public boolean deleteMatchFromTeam(
-            final Integer teamId, final Integer matchId) throws Exception {
+            final Integer teamId, final Integer matchId)
+            throws ResourcesNotFoundException, BadRequestException {
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new ResourcesNotFoundException(DOESNT_EXIST + teamId));
+                .orElseThrow(() -> new ResourcesNotFoundException(
+                        NotExistMessage.getTeamNotExistMessage(teamId)));
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        MATCH_DOESNT_EXIST + matchId));
+                        NotExistMessage.getMatchNotExistMessage(matchId)));
         if (!match.getTeamList().contains(team)) {
             throw new IllegalArgumentException("Team does not participate in the match");
         }
         if (match.getTeamList().remove(team)) {
             matchRepository.save(match);
-            cache.put(MATCH_CACHE_PREFIX + matchId.toString(), match);
+            cache.put(CacheConstants.getMatchCacheKey(matchId), match);
         }
         if (team.getMatches().remove(match)) {
             teamRepository.save(team);
-            cache.remove(TEAM_CACHE_PREFIX + teamId.toString());
+            cache.remove(CacheConstants.getTeamCacheKey(teamId));
         }
         return true;
     }
 
-    @AspectAnnotaion
+    @AspectAnnotation
     public List<TeamDtoWithPlayers> getTeamsByCountry(final String country) {
         List<TeamDtoWithPlayers> teamDtoWithPlayers = new ArrayList<>();
         for (Team team : teamRepository.findByCountryIgnoreCase(country)) {
