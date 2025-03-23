@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ArenaController {
     private final ArenaService arenaService;
 
-    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition){
+    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition) {
         return condition
                 ? ResponseEntity.ok(body)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -76,7 +76,7 @@ public class ArenaController {
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         final ArenaDto arena = arenaService.read(id);
-        return handleResponse(arena, arena!=null);
+        return handleResponse(arena, arena != null);
     }
 
     @Operation(summary = "Сhange arena data",
@@ -88,7 +88,7 @@ public class ArenaController {
             @Parameter(description = "New data")
             @Valid @RequestBody Arena arena)
             throws ResourcesNotFoundException {
-        return handleResponse(null,arenaService.update(arena, id));
+        return handleResponse(null, arenaService.update(arena, id));
     }
 
     @Operation(summary = "Delete arena",

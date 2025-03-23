@@ -7,10 +7,13 @@ public final class NotExistMessage {
     private static final String PLAYER_DOESNT_EXIST = "Player does not exist with ID = ";
 
     private NotExistMessage() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+        throw new UnsupportedOperationException(
+                "This is a utility class and cannot be instantiated");
     }
 
-    public static String getArenaNotExistMessage(Integer id) { return ARENA_DOESNT_EXIST + id;}
+    public static String getArenaNotExistMessage(Integer id) {
+        return ARENA_DOESNT_EXIST + id;
+    }
 
     public static String getTeamNotExistMessage(Integer id) {
         return TEAM_DOESNT_EXIST + id;

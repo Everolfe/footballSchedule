@@ -7,7 +7,8 @@ public final class CacheConstants {
     private static final String PLAYER_CACHE_PREFIX = "player_";
 
     private CacheConstants() {
-        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+        throw new UnsupportedOperationException(
+                "This is a utility class and cannot be instantiated");
     }
 
     public static String getArenaCacheKey(Integer id) {
