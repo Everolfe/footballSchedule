@@ -9,7 +9,7 @@ public class Cache<K, V> extends LinkedHashMap<K, V> {
 
     @Override
     protected boolean removeEldestEntry(final Map.Entry<K, V> eldest) {
-        final int maxSize = 5;
+        final int maxSize = 3;
         return size() > maxSize;
     }
 }
