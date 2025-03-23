@@ -10,6 +10,16 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MatchRepository extends JpaRepository<Match, Integer> {
+
+    //Query(value = "SELECT * FROM matches
+    // WHERE LOWER(tournament_name) = LOWER(:tournamentName)", nativeQuery = true)
+    //@Query(value = "SELECT * FROM matches
+    // WHERE date_time <= :endDate", nativeQuery = true)
+    //@Query(value = "SELECT * FROM matches
+    // WHERE date_time >= :startDate", nativeQuery = true)
+    //@Query(value = "SELECT * FROM matches
+    // WHERE date_time BETWEEN :startDate AND :endDate", nativeQuery = true)
+
     @Query("SELECT m FROM Match m WHERE LOWER(m.tournamentName) = LOWER(:tournamentName)")
     List<Match> findByTournamentNameIgnoreCase(@Param("tournamentName") String tournamentName);
 
