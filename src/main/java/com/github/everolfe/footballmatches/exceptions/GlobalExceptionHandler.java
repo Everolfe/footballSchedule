@@ -1,6 +1,6 @@
 package com.github.everolfe.footballmatches.exceptions;
 
-import com.github.everolfe.footballmatches.aspect.AspectAnnotaion;
+import com.github.everolfe.footballmatches.aspect.AspectAnnotation;
 import java.util.Date;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @Component
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @AspectAnnotaion
+    @AspectAnnotation
     @ExceptionHandler(ResourcesNotFoundException.class)
     public ResponseEntity<ErrorMessage> handleResourcesNotFoundException(
             ResourcesNotFoundException ex) {
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 
-    @AspectAnnotaion
+    @AspectAnnotation
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorMessage> handleBadRequestException(BadRequestException ex) {
         ErrorMessage message = new ErrorMessage(
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
 
-    @AspectAnnotaion
+    @AspectAnnotation
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorMessage> handleException(Exception ex) {
         ErrorMessage message = new ErrorMessage(
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @AspectAnnotaion
+    @AspectAnnotation
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorMessage> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException ex) {
