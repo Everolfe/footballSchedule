@@ -6,9 +6,11 @@ public final class NotExistMessage {
     private static final String MATCH_DOESNT_EXIST = "Match does not exist with ID = ";
     private static final String PLAYER_DOESNT_EXIST = "Player does not exist with ID = ";
 
-    public static String getArenaNotExistMessage(Integer id) {
-        return ARENA_DOESNT_EXIST + id;
+    private NotExistMessage() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
+
+    public static String getArenaNotExistMessage(Integer id) { return ARENA_DOESNT_EXIST + id;}
 
     public static String getTeamNotExistMessage(Integer id) {
         return TEAM_DOESNT_EXIST + id;
