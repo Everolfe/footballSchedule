@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "LogController",
     description = "Allow to get the log file by the specified date")
 @RestController
-@RequestMapping(PathConstants.LOGS_PATH)
+@RequestMapping("/logs")
 public class LogController {
 
     private static final String LOG_FILE_PATH = "./logs/logfile.log"; // Путь к общему лог-файлу
