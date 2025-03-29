@@ -140,7 +140,7 @@ public class TeamService {
     @AspectAnnotation
     public boolean deletePlayerFromTeam(
             final Integer teamId, final Integer playerId)
-            throws ResourcesNotFoundException, BadRequestException{
+            throws ResourcesNotFoundException, BadRequestException {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(teamId)));

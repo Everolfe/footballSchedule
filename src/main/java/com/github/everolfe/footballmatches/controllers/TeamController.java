@@ -9,9 +9,8 @@ import com.github.everolfe.footballmatches.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +34,7 @@ public class TeamController {
 
     private final TeamService teamService;
 
-    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition){
+    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition) {
         return condition
                 ? ResponseEntity.ok(body)
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -76,7 +75,7 @@ public class TeamController {
             @Parameter(description = "ID of the team to be found ")
             @PathVariable(name = "id") Integer id) {
         final TeamDtoWithPlayers team = teamService.read(id);
-        return handleResponse(team, team !=null);
+        return handleResponse(team,  team != null);
     }
 
     @Operation(summary = "Сhange team data",
@@ -87,7 +86,7 @@ public class TeamController {
             @PathVariable(name = "id") Integer id,
             @Parameter(description = "New data")
             @Valid @RequestBody Team team) {
-        return handleResponse(null,teamService.update(team, id));
+        return handleResponse(null, teamService.update(team, id));
     }
 
     @Operation(summary = "Remove player from team",
@@ -99,7 +98,7 @@ public class TeamController {
             @Parameter(description = "ID of removing player")
             @RequestParam(value = "playerId") final Integer playerId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null,teamService.deletePlayerFromTeam(teamId, playerId));
+        return handleResponse(null, teamService.deletePlayerFromTeam(teamId, playerId));
     }
 
     @Operation(summary = "Remove match from team",
@@ -111,7 +110,7 @@ public class TeamController {
             @Parameter(description = "ID of removing match")
             @RequestParam(value = "matchId") final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null,teamService.deleteMatchFromTeam(teamId, matchId));
+        return handleResponse(null, teamService.deleteMatchFromTeam(teamId, matchId));
     }
 
     @Operation(summary = "Add match to team",
@@ -123,7 +122,7 @@ public class TeamController {
             @Parameter(description = "ID of added match")
             @RequestParam(value = "matchId") final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null,teamService.addMatchToTeam(teamId, matchId));
+        return handleResponse(null, teamService.addMatchToTeam(teamId, matchId));
     }
 
     @Operation(summary = "Add player to team",
@@ -135,7 +134,7 @@ public class TeamController {
             @Parameter(description = "ID of added player")
             @RequestParam(value = "playerId") final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null,teamService.addPlayerToTeam(teamId, matchId));
+        return handleResponse(null, teamService.addPlayerToTeam(teamId, matchId));
     }
 
     @Operation(summary = "Delete team",
@@ -144,6 +143,6 @@ public class TeamController {
     public ResponseEntity<Void> deleteTeam(
             @Parameter(description = "ID of the team to be delete")
             @PathVariable(name = "id") Integer id) {
-        return handleResponse(null,teamService.delete(id));
+        return handleResponse(null, teamService.delete(id));
     }
 }
