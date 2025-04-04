@@ -145,4 +145,16 @@ public class TeamController {
             @PathVariable(name = "id") Integer id) {
         return handleResponse(null, teamService.delete(id));
     }
+
+    @Operation(summary = "Bulk create teams",
+            description = "Allow you to create multiple teams at once")
+    @PostMapping("/bulk-create")
+    public ResponseEntity<Void> createTeamsBulk(
+            @Parameter(description = "List of teams to create")
+            @Valid @RequestBody List<Team> teams) {
+
+        teamService.createBulk(teams);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
