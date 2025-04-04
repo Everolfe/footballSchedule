@@ -27,6 +27,9 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class ArenaService {
 
+    private static final String ID_FIELD = "id";
+    private static final String CAPACITY_FIELD = "capacity";
+
     private final Cache<String, Object> cache;
     private final ArenaRepository arenaRepository;
     private  final MatchRepository matchRepository;
@@ -37,7 +40,7 @@ public class ArenaService {
             throw new BadRequestException("Arena is null");
         }
         ValidationUtils.validateProperName(arena.getCity());
-        ValidationUtils.validateNonNegative("Capacity", arena.getCapacity());
+        ValidationUtils.validateNonNegative(CAPACITY_FIELD, arena.getCapacity());
         arenaRepository.save(arena);
         ArenaDto arenaDto = ConvertDtoClasses.convertToArenaDto(arena);
         cache.put(CacheConstants.getArenaCacheKey(arenaDto.getId()), arenaDto);
@@ -57,7 +60,7 @@ public class ArenaService {
 
     @AspectAnnotation
     public ArenaDto read(final Integer id) {
-        ValidationUtils.validateNonNegative("ID", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         Object cachedArena = cache.get(CacheConstants.getArenaCacheKey(id));
         if (cachedArena != null) {
             return (ArenaDto) cachedArena;
@@ -72,9 +75,9 @@ public class ArenaService {
 
     @AspectAnnotation
     public boolean update(Arena arena, final Integer id) {
-        ValidationUtils.validateNonNegative("ID", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         ValidationUtils.validateProperName(arena.getCity());
-        ValidationUtils.validateNonNegative("Capacity", arena.getCapacity());
+        ValidationUtils.validateNonNegative(CAPACITY_FIELD, arena.getCapacity());
         return arenaRepository.findById(id)
                 .map(existingArena -> {
                     arena.setId(id);
@@ -88,7 +91,7 @@ public class ArenaService {
 
     @AspectAnnotation
     public boolean delete(final Integer id) {
-        ValidationUtils.validateNonNegative("ID", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         Optional<Arena> arenaOptional = arenaRepository.findById(id);
         if (arenaOptional.isPresent()) {
             Arena arena = arenaOptional.get();
@@ -116,8 +119,8 @@ public class ArenaService {
     @AspectAnnotation
     public List<ArenaDto> getArenasByCapacity(
             final Integer minCapacity, final Integer maxCapacity) {
-        ValidationUtils.validateNonNegative("minCapacity", minCapacity);
-        ValidationUtils.validateNonNegative("maxCapacity", maxCapacity);
+        ValidationUtils.validateNonNegative(CAPACITY_FIELD, minCapacity);
+        ValidationUtils.validateNonNegative(CAPACITY_FIELD, maxCapacity);
         List<ArenaDto> arenaDto = new ArrayList<>();
         if (checkValidCapacity(minCapacity, maxCapacity)) {
             return arenaDto;

@@ -26,6 +26,9 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class PlayerService {
 
+    private static final String ID_FIELD = "id";
+    private static final String AGE_FIELD = "age";
+
     private final Cache<String, Object> cache;
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
@@ -36,7 +39,7 @@ public class PlayerService {
             throw new BadRequestException("Player is null");
         }
         ValidationUtils.validateProperName(player.getCountry());
-        ValidationUtils.validateNonNegative("Age", player.getAge());
+        ValidationUtils.validateNonNegative(AGE_FIELD, player.getAge());
         playerRepository.save(player);
         PlayerDto playerDto = ConvertDtoClasses.convertToPlayerDto(player);
         cache.put(CacheConstants.getPlayerCacheKey(player.getId()), playerDto);
@@ -56,7 +59,7 @@ public class PlayerService {
 
     @AspectAnnotation
     public PlayerDto read(final Integer id) {
-        ValidationUtils.validateNonNegative("id", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         Object cachedPlayer = cache.get(CacheConstants.getPlayerCacheKey(id));
         if (cachedPlayer != null) {
             return (PlayerDto) cachedPlayer;
@@ -71,7 +74,7 @@ public class PlayerService {
 
     @AspectAnnotation
     public boolean update(Player player, final Integer id) {
-        ValidationUtils.validateNonNegative("id", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         return playerRepository.findById(id)
                 .map(existingPlayer -> {
                     player.setId(id);
@@ -85,7 +88,7 @@ public class PlayerService {
 
     @AspectAnnotation
     public boolean delete(final Integer id) {
-        ValidationUtils.validateNonNegative("id", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getPlayerNotExistMessage(id)));
@@ -100,7 +103,7 @@ public class PlayerService {
 
     @AspectAnnotation
     public List<PlayerDto> getPlayersByAge(final Integer age) {
-        ValidationUtils.validateNonNegative("age", age);
+        ValidationUtils.validateNonNegative(AGE_FIELD, age);
         List<PlayerDto> playerDto = new ArrayList<>();
         for (Player player : playerRepository.findByAge(age)) {
             playerDto.add(ConvertDtoClasses.convertToPlayerDto(player));

@@ -31,6 +31,9 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class MatchService  {
 
+    private static final String ID_FIELD = "id";
+    private static final String TOURNAMENT_NAME_FIELD = "tournamentName";
+
     private final Cache<String, Object> cache;
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
@@ -41,7 +44,7 @@ public class MatchService  {
         if (match == null) {
             throw new BadRequestException("Match is null");
         }
-        ValidationUtils.validateCapitalizedWords("tournament name", match.getTournamentName());
+        ValidationUtils.validateCapitalizedWords(TOURNAMENT_NAME_FIELD, match.getTournamentName());
         ValidationUtils.validateDateFormat(match.getDateTime().toString());
         matchRepository.save(match);
         cache.put(CacheConstants.getMatchCacheKey(match.getId()), match);
@@ -62,7 +65,7 @@ public class MatchService  {
 
     @AspectAnnotation
     public MatchDtoWithArenaAndTeams read(final Integer id) throws ResourcesNotFoundException {
-        ValidationUtils.validateNonNegative("id", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         Object match = cache.get(CacheConstants.getMatchCacheKey(id));
         if (match != null) {
             return (MatchDtoWithArenaAndTeams) match;
@@ -78,9 +81,9 @@ public class MatchService  {
 
     @AspectAnnotation
     public boolean update(Match match, final Integer id) {
-        ValidationUtils.validateCapitalizedWords("tournament name", match.getTournamentName());
+        ValidationUtils.validateCapitalizedWords(TOURNAMENT_NAME_FIELD, match.getTournamentName());
         ValidationUtils.validateDateFormat(match.getDateTime().toString());
-        ValidationUtils.validateNonNegative("id", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         Optional<Match> existingMatch = matchRepository.findById(id);
         if (existingMatch.isPresent()) {
             match.setId(id);
@@ -94,7 +97,7 @@ public class MatchService  {
 
     @AspectAnnotation
     public boolean delete(final Integer matchId) {
-        ValidationUtils.validateNonNegative("matchId", matchId);
+        ValidationUtils.validateNonNegative(ID_FIELD, matchId);
         Optional<Match> matchOptional = matchRepository.findById(matchId);
         if (matchOptional.isPresent()) {
             Match match = matchOptional.get();
@@ -121,8 +124,8 @@ public class MatchService  {
     @AspectAnnotation
     public boolean addTeamToMatch(final Integer matchId, final Integer teamId)
             throws ResourcesNotFoundException, BadRequestException {
-        ValidationUtils.validateNonNegative("matchId", matchId);
-        ValidationUtils.validateNonNegative("teamId", teamId);
+        ValidationUtils.validateNonNegative(ID_FIELD, matchId);
+        ValidationUtils.validateNonNegative(ID_FIELD, teamId);
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getMatchNotExistMessage(matchId)));
@@ -145,8 +148,8 @@ public class MatchService  {
     @AspectAnnotation
     public boolean removeTeamFromMatch(final Integer matchId, final Integer teamId)
             throws ResourcesNotFoundException, BadRequestException {
-        ValidationUtils.validateNonNegative("matchId", matchId);
-        ValidationUtils.validateNonNegative("teamId", teamId);
+        ValidationUtils.validateNonNegative(ID_FIELD, matchId);
+        ValidationUtils.validateNonNegative(ID_FIELD, teamId);
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getMatchNotExistMessage(matchId)));
@@ -169,8 +172,8 @@ public class MatchService  {
     @AspectAnnotation
     public boolean setNewArena(final Integer matchId, final Integer arenaId)
             throws ResourcesNotFoundException {
-        ValidationUtils.validateNonNegative("matchId", matchId);
-        ValidationUtils.validateNonNegative("arenaId", arenaId);
+        ValidationUtils.validateNonNegative(ID_FIELD, matchId);
+        ValidationUtils.validateNonNegative(ID_FIELD, arenaId);
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getMatchNotExistMessage(matchId)));
@@ -189,7 +192,7 @@ public class MatchService  {
     @AspectAnnotation
     public boolean updateMatchTime(final Integer matchId, final LocalDateTime time)
             throws ResourcesNotFoundException {
-        ValidationUtils.validateNonNegative("matchId", matchId);
+        ValidationUtils.validateNonNegative(ID_FIELD, matchId);
         ValidationUtils.validateDateFormat(time.toString());
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
@@ -230,7 +233,7 @@ public class MatchService  {
 
     @AspectAnnotation
     public List<MatchDtoWithArenaAndTeams> getMatchesByTournamentName(final String tournamentName) {
-        ValidationUtils.validateCapitalizedWords("Tournament Name", tournamentName);
+        ValidationUtils.validateCapitalizedWords(TOURNAMENT_NAME_FIELD, tournamentName);
         List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList = new ArrayList<>();
         for (Match match : matchRepository.findByTournamentNameIgnoreCase(tournamentName)) {
             matchDtoWithArenaAndTeamsList

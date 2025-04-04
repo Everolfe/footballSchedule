@@ -29,6 +29,9 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class TeamService {
 
+    private static final String ID_FIELD = "id";
+    private static final String TEAM_NAME_FIELD = "teamName";
+
     private final Cache<String, Object> cache;
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
@@ -40,7 +43,7 @@ public class TeamService {
             throw new BadRequestException("Team is null");
         }
         ValidationUtils.validateProperName(team.getCountry());
-        ValidationUtils.validateCapitalizedWords("Team name", team.getTeamName());
+        ValidationUtils.validateCapitalizedWords(TEAM_NAME_FIELD, team.getTeamName());
         teamRepository.save(team);
         cache.put(CacheConstants.getTeamCacheKey(team.getId()), team);
     }
@@ -61,7 +64,7 @@ public class TeamService {
 
     @AspectAnnotation
     public TeamDtoWithPlayers read(final Integer id) {
-        ValidationUtils.validateNonNegative("id", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         Object team = cache.get(CacheConstants.getTeamCacheKey(id));
         if (team != null) {
             return (TeamDtoWithPlayers) team;
@@ -77,7 +80,7 @@ public class TeamService {
 
     @AspectAnnotation
     public boolean update(Team team, final Integer id) {
-        ValidationUtils.validateNonNegative("id", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         return teamRepository.findById(id)
                 .map(existingTeam -> {
                     team.setId(id);
@@ -91,7 +94,7 @@ public class TeamService {
 
     @AspectAnnotation
     public boolean delete(final Integer id) {
-        ValidationUtils.validateNonNegative("id", id);
+        ValidationUtils.validateNonNegative(ID_FIELD, id);
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(id)));
@@ -122,8 +125,8 @@ public class TeamService {
     @AspectAnnotation
     public boolean addPlayerToTeam(final Integer teamId, final Integer playerId)
             throws ResourcesNotFoundException, BadRequestException {
-        ValidationUtils.validateNonNegative("teamId", teamId);
-        ValidationUtils.validateNonNegative("playerId", playerId);
+        ValidationUtils.validateNonNegative(ID_FIELD, teamId);
+        ValidationUtils.validateNonNegative(ID_FIELD, playerId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(teamId)));
@@ -149,8 +152,8 @@ public class TeamService {
     public boolean deletePlayerFromTeam(
             final Integer teamId, final Integer playerId)
             throws ResourcesNotFoundException, BadRequestException {
-        ValidationUtils.validateNonNegative("teamId", teamId);
-        ValidationUtils.validateNonNegative("playerId", playerId);
+        ValidationUtils.validateNonNegative(ID_FIELD, teamId);
+        ValidationUtils.validateNonNegative(ID_FIELD, playerId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(teamId)));
@@ -172,8 +175,8 @@ public class TeamService {
     @AspectAnnotation
     public boolean addMatchToTeam(final Integer teamId, final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        ValidationUtils.validateNonNegative("teamId", teamId);
-        ValidationUtils.validateNonNegative("matchId", matchId);
+        ValidationUtils.validateNonNegative(ID_FIELD, teamId);
+        ValidationUtils.validateNonNegative(ID_FIELD, matchId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(teamId)));

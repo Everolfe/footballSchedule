@@ -5,6 +5,11 @@ import java.time.format.DateTimeParseException;
 
 public class ValidationUtils {
 
+    private ValidationUtils() {
+        throw new UnsupportedOperationException(
+                "This is a utility class and cannot be instantiated");
+    }
+
     public static void validateProperName(String cityName) {
         if (cityName == null || cityName.trim().isEmpty()) {
             throw new InvalidProperNameException(cityName);
@@ -63,7 +68,7 @@ public class ValidationUtils {
         }
 
         try {
-            LocalDate date = LocalDate.parse(dateString);
+            LocalDate.parse(dateString);
         } catch (DateTimeParseException e) {
             throw new InvalidDateException(dateString);
         }
