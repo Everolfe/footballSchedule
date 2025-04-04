@@ -29,15 +29,23 @@ public class ValidationUtils {
             throw new NegativeNumberException(fieldName, null);
         }
 
-        if (value instanceof Integer && (Integer) value < 0) {
+        if (value instanceof Integer integer && integer < 0) {
             throw new NegativeNumberException(fieldName, value);
         }
 
-        if (value instanceof Double && (Double) value < 0) {
+        if (value instanceof Double doubleValue && doubleValue < 0) {
             throw new NegativeNumberException(fieldName, value);
         }
 
-        if (value instanceof Long && (Long) value < 0) {
+        if (value instanceof Long longValue && longValue < 0) {
+            throw new NegativeNumberException(fieldName, value);
+        }
+
+        if (value instanceof Float floatValue && floatValue < 0) {
+            throw new NegativeNumberException(fieldName, value);
+        }
+
+        if (value instanceof Short shortValue && shortValue < 0) {
             throw new NegativeNumberException(fieldName, value);
         }
     }
