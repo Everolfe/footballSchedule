@@ -33,7 +33,7 @@ public class LogController {
     @GetMapping
     public ResponseEntity<Resource> getLogsByDate(
             @Parameter(description = "Log date",
-                    example = "2025-02-20",  // Добавлен пример даты
+                    example = "2025-02-20",
                     required = true)
             @RequestParam String date) {
         try {
