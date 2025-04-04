@@ -244,11 +244,12 @@ public class TeamService {
         }
         List<Team> validTeams = teams.stream()
                 .filter(Objects::nonNull)
-                .peek(team -> {
+                .map(team -> {
                     ValidationUtils.validateProperName(team.getCountry());
                     ValidationUtils.validateCapitalizedWords(TEAM_NAME_FIELD, team.getTeamName());
+                    return team;
                 })
-                .collect(Collectors.toList());
+                .toList();
         if (validTeams.isEmpty()) {
             throw new BadRequestException("No valid teams provided");
         }
