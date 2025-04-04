@@ -17,6 +17,7 @@ import com.github.everolfe.footballmatches.repository.TeamRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -109,6 +110,25 @@ public class PlayerService {
             playerDto.add(ConvertDtoClasses.convertToPlayerDto(player));
         }
         return playerDto;
+    }
+
+    @AspectAnnotation
+    public void createBulk(List<Player> players) {
+        if (players == null) {
+            throw new BadRequestException("Players list cannot be null");
+        }
+        List<Player> validPlayers = players.stream()
+                .filter(Objects::nonNull)
+                .map(player -> {
+                    ValidationUtils.validateProperName(player.getCountry());
+                    ValidationUtils.validateNonNegative(AGE_FIELD, player.getAge());
+                    return player;
+                })
+                .toList();
+        if (validPlayers.isEmpty()) {
+            throw new BadRequestException("No valid players provided");
+        }
+        playerRepository.saveAll(validPlayers);
     }
 
 }

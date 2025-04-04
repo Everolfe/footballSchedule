@@ -17,6 +17,7 @@ import com.github.everolfe.footballmatches.repository.MatchRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -138,6 +139,24 @@ public class ArenaService {
             }
         }
         return arenaDto;
+    }
 
+    @AspectAnnotation
+    public void createBulk(List<Arena> arenas) {
+        if (arenas == null) {
+            throw new BadRequestException("Arena list cannot be null");
+        }
+        List<Arena> validArenas = arenas.stream()
+                .filter(Objects::nonNull)
+                .map(arena -> {
+                    ValidationUtils.validateProperName(arena.getCity());
+                    ValidationUtils.validateNonNegative(CAPACITY_FIELD, arena.getCapacity());
+                    return arena;
+                })
+                .toList();
+        if (validArenas.isEmpty()) {
+            throw new BadRequestException("No valid players provided");
+        }
+        arenaRepository.saveAll(validArenas);
     }
 }

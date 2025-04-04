@@ -4,6 +4,7 @@ import com.github.everolfe.footballmatches.dto.arena.ArenaDto;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Arena;
+import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.service.ArenaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -99,5 +100,17 @@ public class ArenaController {
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         return handleResponse(null, arenaService.delete(id));
+    }
+
+    @Operation(summary = "Bulk create arenas",
+            description = "Allow you to create multiple arenas at once")
+    @PostMapping("/bulk-create")
+    public ResponseEntity<Void> createArenasBulk(
+            @Parameter(description = "List of arenas to create")
+            @RequestBody List<Arena> arenas) {
+
+        arenaService.createBulk(arenas);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

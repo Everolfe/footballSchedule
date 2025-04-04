@@ -20,8 +20,6 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -238,6 +236,7 @@ public class TeamService {
         return teamDtoWithPlayers;
     }
 
+    @AspectAnnotation
     public void createBulk(List<Team> teams) {
         if (teams == null) {
             throw new BadRequestException("Teams list cannot be null");
@@ -253,6 +252,6 @@ public class TeamService {
         if (validTeams.isEmpty()) {
             throw new BadRequestException("No valid teams provided");
         }
-        teamRepository.saveAll(teams);
+        teamRepository.saveAll(validTeams);
     }
 }

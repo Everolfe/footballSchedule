@@ -151,7 +151,7 @@ public class TeamController {
     @PostMapping("/bulk-create")
     public ResponseEntity<Void> createTeamsBulk(
             @Parameter(description = "List of teams to create")
-            @Valid @RequestBody List<Team> teams) {
+            @RequestBody List<Team> teams) {
 
         teamService.createBulk(teams);
 

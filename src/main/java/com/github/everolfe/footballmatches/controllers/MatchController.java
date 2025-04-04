@@ -4,6 +4,7 @@ import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Match;
+import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.service.MatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -163,6 +164,18 @@ public class MatchController {
             @RequestParam(value = "teamId") final Integer teamId)
             throws ResourcesNotFoundException, BadRequestException {
         return handleResponse(null, matchService.removeTeamFromMatch(matchId, teamId));
+    }
+
+    @Operation(summary = "Bulk create matches",
+            description = "Allow you to create multiple matches at once")
+    @PostMapping("/bulk-create")
+    public ResponseEntity<Void> createMatchesBulk(
+            @Parameter(description = "List of matches to create")
+            @RequestBody List<Match> matches) {
+
+        matchService.createBulk(matches);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

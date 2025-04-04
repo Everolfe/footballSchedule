@@ -11,6 +11,7 @@ import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
 import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.model.Match;
+import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
@@ -19,6 +20,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -240,5 +242,24 @@ public class MatchService  {
                     .add(ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match));
         }
         return matchDtoWithArenaAndTeamsList;
+    }
+
+    @AspectAnnotation
+    public void createBulk(List<Match> matches) {
+        if (matches == null) {
+            throw new BadRequestException("Match list cannot be null");
+        }
+        List<Match> validMatches = matches.stream()
+                .filter(Objects::nonNull)
+                .map(match -> {
+                    ValidationUtils.validateCapitalizedWords(TOURNAMENT_NAME_FIELD, match.getTournamentName());
+                    ValidationUtils.validateDateFormat(match.getDateTime().toString());
+                    return match;
+                })
+                .toList();
+        if (validMatches.isEmpty()) {
+            throw new BadRequestException("No valid players provided");
+        }
+        matchRepository.saveAll(validMatches);
     }
 }

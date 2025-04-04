@@ -99,4 +99,16 @@ public class PlayerController {
             throws ResourcesNotFoundException {
         return handleResponse(null, playerService.delete(id));
     }
+
+    @Operation(summary = "Bulk create players",
+            description = "Allow you to create multiple players at once")
+    @PostMapping("/bulk-create")
+    public ResponseEntity<Void> createPlayersBulk(
+            @Parameter(description = "List of players to create")
+            @RequestBody List<Player> players) {
+
+        playerService.createBulk(players);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
