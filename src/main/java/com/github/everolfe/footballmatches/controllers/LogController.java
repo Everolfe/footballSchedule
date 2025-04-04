@@ -32,7 +32,9 @@ public class LogController {
             description = "Allow you to get log file by specified date")
     @GetMapping
     public ResponseEntity<Resource> getLogsByDate(
-            @Parameter(description = "Log date")
+            @Parameter(description = "Log date",
+                    example = "2025-02-20",  // Добавлен пример даты
+                    required = true)
             @RequestParam String date) {
         try {
             List<String> filteredLogs = filterLogsByDate(date);
