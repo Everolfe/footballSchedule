@@ -9,6 +9,7 @@ import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.NotExistMessage;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
+import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
@@ -38,6 +39,8 @@ public class TeamService {
         if (team == null) {
             throw new BadRequestException("Team is null");
         }
+        ValidationUtils.validateProperName(team.getCountry());
+        ValidationUtils.validateCapitalizedWords("Team name", team.getTeamName());
         teamRepository.save(team);
         cache.put(CacheConstants.getTeamCacheKey(team.getId()), team);
     }
@@ -58,6 +61,7 @@ public class TeamService {
 
     @AspectAnnotation
     public TeamDtoWithPlayers read(final Integer id) {
+        ValidationUtils.validateNonNegative("id", id);
         Object team = cache.get(CacheConstants.getTeamCacheKey(id));
         if (team != null) {
             return (TeamDtoWithPlayers) team;
@@ -73,6 +77,7 @@ public class TeamService {
 
     @AspectAnnotation
     public boolean update(Team team, final Integer id) {
+        ValidationUtils.validateNonNegative("id", id);
         return teamRepository.findById(id)
                 .map(existingTeam -> {
                     team.setId(id);
@@ -86,6 +91,7 @@ public class TeamService {
 
     @AspectAnnotation
     public boolean delete(final Integer id) {
+        ValidationUtils.validateNonNegative("id", id);
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(id)));
@@ -116,6 +122,8 @@ public class TeamService {
     @AspectAnnotation
     public boolean addPlayerToTeam(final Integer teamId, final Integer playerId)
             throws ResourcesNotFoundException, BadRequestException {
+        ValidationUtils.validateNonNegative("teamId", teamId);
+        ValidationUtils.validateNonNegative("playerId", playerId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(teamId)));
@@ -141,6 +149,8 @@ public class TeamService {
     public boolean deletePlayerFromTeam(
             final Integer teamId, final Integer playerId)
             throws ResourcesNotFoundException, BadRequestException {
+        ValidationUtils.validateNonNegative("teamId", teamId);
+        ValidationUtils.validateNonNegative("playerId", playerId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(teamId)));
@@ -162,6 +172,8 @@ public class TeamService {
     @AspectAnnotation
     public boolean addMatchToTeam(final Integer teamId, final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
+        ValidationUtils.validateNonNegative("teamId", teamId);
+        ValidationUtils.validateNonNegative("matchId", matchId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(teamId)));
@@ -212,6 +224,7 @@ public class TeamService {
 
     @AspectAnnotation
     public List<TeamDtoWithPlayers> getTeamsByCountry(final String country) {
+        ValidationUtils.validateProperName(country);
         List<TeamDtoWithPlayers> teamDtoWithPlayers = new ArrayList<>();
         for (Team team : teamRepository.findByCountryIgnoreCase(country)) {
             teamDtoWithPlayers.add(ConvertDtoClasses.convertToTeamDtoWithPlayers(team));

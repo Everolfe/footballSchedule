@@ -9,6 +9,7 @@ import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.NotExistMessage;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
+import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
 import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
@@ -35,6 +36,8 @@ public class ArenaService {
         if (arena == null) {
             throw new BadRequestException("Arena is null");
         }
+        ValidationUtils.validateProperName(arena.getCity());
+        ValidationUtils.validateNonNegative("Capacity", arena.getCapacity());
         arenaRepository.save(arena);
         ArenaDto arenaDto = ConvertDtoClasses.convertToArenaDto(arena);
         cache.put(CacheConstants.getArenaCacheKey(arenaDto.getId()), arenaDto);
@@ -54,6 +57,7 @@ public class ArenaService {
 
     @AspectAnnotation
     public ArenaDto read(final Integer id) {
+        ValidationUtils.validateNonNegative("ID", id);
         Object cachedArena = cache.get(CacheConstants.getArenaCacheKey(id));
         if (cachedArena != null) {
             return (ArenaDto) cachedArena;
@@ -68,6 +72,9 @@ public class ArenaService {
 
     @AspectAnnotation
     public boolean update(Arena arena, final Integer id) {
+        ValidationUtils.validateNonNegative("ID", id);
+        ValidationUtils.validateProperName(arena.getCity());
+        ValidationUtils.validateNonNegative("Capacity", arena.getCapacity());
         return arenaRepository.findById(id)
                 .map(existingArena -> {
                     arena.setId(id);
@@ -81,6 +88,7 @@ public class ArenaService {
 
     @AspectAnnotation
     public boolean delete(final Integer id) {
+        ValidationUtils.validateNonNegative("ID", id);
         Optional<Arena> arenaOptional = arenaRepository.findById(id);
         if (arenaOptional.isPresent()) {
             Arena arena = arenaOptional.get();
@@ -108,6 +116,8 @@ public class ArenaService {
     @AspectAnnotation
     public List<ArenaDto> getArenasByCapacity(
             final Integer minCapacity, final Integer maxCapacity) {
+        ValidationUtils.validateNonNegative("minCapacity", minCapacity);
+        ValidationUtils.validateNonNegative("maxCapacity", maxCapacity);
         List<ArenaDto> arenaDto = new ArrayList<>();
         if (checkValidCapacity(minCapacity, maxCapacity)) {
             return arenaDto;

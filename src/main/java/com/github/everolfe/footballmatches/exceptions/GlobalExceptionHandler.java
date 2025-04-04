@@ -58,4 +58,39 @@ public class GlobalExceptionHandler {
                 null);
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
+
+    @AspectAnnotation
+    @ExceptionHandler(InvalidProperNameException.class)
+    public ResponseEntity<ErrorMessage> handleInvalidCityNameException(
+            InvalidProperNameException ex) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                ex.getMessage(),
+                "City name must start with capital letter and contain only letters");
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    }
+
+    @AspectAnnotation
+    @ExceptionHandler(NegativeNumberException.class)
+    public ResponseEntity<ErrorMessage> handleNegativeNumberException(NegativeNumberException ex) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                ex.getMessage(),
+                "Numeric fields cannot have negative values");
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    }
+
+    @AspectAnnotation
+    @ExceptionHandler(InvalidDateException.class)
+    public ResponseEntity<ErrorMessage> handleInvalidDateException(InvalidDateException ex) {
+        ErrorMessage message = new ErrorMessage(
+                HttpStatus.BAD_REQUEST.value(),
+                new Date(),
+                ex.getMessage(),
+                "Date must be in format yyyy-MM-dd and be a valid calendar date");
+        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+    }
+
 }

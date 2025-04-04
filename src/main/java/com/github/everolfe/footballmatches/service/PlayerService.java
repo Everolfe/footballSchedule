@@ -9,6 +9,7 @@ import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.NotExistMessage;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
+import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
 import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.repository.PlayerRepository;
@@ -34,6 +35,8 @@ public class PlayerService {
         if (player == null) {
             throw new BadRequestException("Player is null");
         }
+        ValidationUtils.validateProperName(player.getCountry());
+        ValidationUtils.validateNonNegative("Age", player.getAge());
         playerRepository.save(player);
         PlayerDto playerDto = ConvertDtoClasses.convertToPlayerDto(player);
         cache.put(CacheConstants.getPlayerCacheKey(player.getId()), playerDto);
@@ -53,6 +56,7 @@ public class PlayerService {
 
     @AspectAnnotation
     public PlayerDto read(final Integer id) {
+        ValidationUtils.validateNonNegative("id", id);
         Object cachedPlayer = cache.get(CacheConstants.getPlayerCacheKey(id));
         if (cachedPlayer != null) {
             return (PlayerDto) cachedPlayer;
@@ -67,6 +71,7 @@ public class PlayerService {
 
     @AspectAnnotation
     public boolean update(Player player, final Integer id) {
+        ValidationUtils.validateNonNegative("id", id);
         return playerRepository.findById(id)
                 .map(existingPlayer -> {
                     player.setId(id);
@@ -80,6 +85,7 @@ public class PlayerService {
 
     @AspectAnnotation
     public boolean delete(final Integer id) {
+        ValidationUtils.validateNonNegative("id", id);
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getPlayerNotExistMessage(id)));
@@ -94,6 +100,7 @@ public class PlayerService {
 
     @AspectAnnotation
     public List<PlayerDto> getPlayersByAge(final Integer age) {
+        ValidationUtils.validateNonNegative("age", age);
         List<PlayerDto> playerDto = new ArrayList<>();
         for (Player player : playerRepository.findByAge(age)) {
             playerDto.add(ConvertDtoClasses.convertToPlayerDto(player));
