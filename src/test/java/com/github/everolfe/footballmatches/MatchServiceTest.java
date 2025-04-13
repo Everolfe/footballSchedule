@@ -287,6 +287,9 @@ class MatchServiceTest {
         verify(matchRepository).saveAll(matches);
 
         assertThrows(BadRequestException.class, () -> matchService.createBulk(null));
-        assertThrows(BadRequestException.class, () -> matchService.createBulk(List.of()));
+        assertThrows(BadRequestException.class, () -> {
+            List<Match> emptyList = List.of();
+            matchService.createBulk(emptyList);
+        });
     }
 }

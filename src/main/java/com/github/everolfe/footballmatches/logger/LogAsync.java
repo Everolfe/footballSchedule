@@ -21,6 +21,9 @@ public class LogAsync {
             Files.writeString(file, "Лог-файл сгенерирован. ID: " + taskId);
             taskFiles.put(taskId, file);
             taskStatus.put(taskId, "COMPLETED");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            taskStatus.put(taskId, "FAILED");
         } catch (Exception e) {
             taskStatus.put(taskId, "FAILED");
         }
