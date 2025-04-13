@@ -8,6 +8,7 @@ import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.model.Match;
+import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
@@ -287,9 +288,7 @@ class MatchServiceTest {
         verify(matchRepository).saveAll(matches);
 
         assertThrows(BadRequestException.class, () -> matchService.createBulk(null));
-        assertThrows(BadRequestException.class, () -> {
-            List<Match> emptyList = List.of();
-            matchService.createBulk(emptyList);
-        });
+        List<Match> invalidMatches = Arrays.asList(new Match(), new Match());
+        assertThrows(BadRequestException.class, () -> matchService.createBulk(invalidMatches));
     }
 }
