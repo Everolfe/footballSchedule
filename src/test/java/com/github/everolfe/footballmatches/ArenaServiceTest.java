@@ -27,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ArenaServiceTest {
+class ArenaServiceTest {
     @Mock
     private ArenaRepository arenaRepository;
 
@@ -48,8 +48,10 @@ public class ArenaServiceTest {
         testArena.setCity("Test City");
         testArena.setCapacity(50000);
 
-        testArenaDto = ConvertDtoClasses.convertToArenaDto(testArena);
-        testArenaDtoWithMatches = ConvertDtoClasses.convertToArenaDtoWithMatches(testArena);
+        testArenaDto = ConvertDtoClasses
+                .convertToArenaDto(testArena);
+        testArenaDtoWithMatches = ConvertDtoClasses
+                .convertToArenaDtoWithMatches(testArena);
     }
 
     @Test
@@ -57,7 +59,8 @@ public class ArenaServiceTest {
         arenaService.create(testArena);
 
         verify(arenaRepository).save(testArena);
-        verify(cache).put(CacheConstants.getArenaCacheKey(testArena.getId()), testArenaDto);
+        verify(cache).put(CacheConstants
+                .getArenaCacheKey(testArena.getId()), testArenaDto);
 
         assertThrows(BadRequestException.class, () -> arenaService.create(null));
     }
@@ -83,24 +86,31 @@ public class ArenaServiceTest {
 
     @Test
     void testReadById() {
-        when(cache.get(CacheConstants.getArenaCacheKey(1))).thenReturn(testArenaDto);
+        when(cache.get(CacheConstants.getArenaCacheKey(1)))
+                .thenReturn(testArenaDto);
 
         ArenaDto result = arenaService.read(1);
 
         assertEquals(testArenaDto, result);
         verify(arenaRepository, never()).findById(anyInt());
 
-        when(cache.get(CacheConstants.getArenaCacheKey(1))).thenReturn(null);
-        when(arenaRepository.findById(1)).thenReturn(Optional.of(testArena));
+        when(cache.get(CacheConstants
+                .getArenaCacheKey(1))).thenReturn(null);
+        when(arenaRepository.findById(1))
+                .thenReturn(Optional.of(testArena));
 
         ArenaDto result2 = arenaService.read(1);
         assertEquals(testArenaDto, result2);
-        verify(cache).put(CacheConstants.getArenaCacheKey(1), testArenaDto);
+        verify(cache).put(CacheConstants
+                .getArenaCacheKey(1), testArenaDto);
 
-        when(cache.get(CacheConstants.getArenaCacheKey(1))).thenReturn(null);
-        when(arenaRepository.findById(1)).thenReturn(Optional.empty());
+        when(cache.get(CacheConstants
+                .getArenaCacheKey(1))).thenReturn(null);
+        when(arenaRepository.findById(1))
+                .thenReturn(Optional.empty());
 
-        assertThrows(ResourcesNotFoundException.class, () -> arenaService.read(1));
+        assertThrows(ResourcesNotFoundException.class,
+                () -> arenaService.read(1));
     }
 
 
@@ -110,22 +120,27 @@ public class ArenaServiceTest {
         updatedArena.setCity("Updated City");
         updatedArena.setCapacity(60000);
 
-        when(arenaRepository.findById(1)).thenReturn(Optional.of(testArena));
+        when(arenaRepository.findById(1))
+                .thenReturn(Optional.of(testArena));
 
         boolean result = arenaService.update(updatedArena, 1);
 
         assertTrue(result);
         verify(arenaRepository).save(updatedArena);
-        verify(cache).put(CacheConstants.getArenaCacheKey(1), updatedArena);
+        verify(cache).put(CacheConstants
+                .getArenaCacheKey(1), updatedArena);
 
 
-        when(arenaRepository.findById(1)).thenReturn(Optional.empty());
-        assertThrows(ResourcesNotFoundException.class, () -> arenaService.update(testArena, 1));
+        when(arenaRepository.findById(1))
+                .thenReturn(Optional.empty());
+        assertThrows(ResourcesNotFoundException.class,
+                () -> arenaService.update(testArena, 1));
     }
 
     @Test
     void testDeleteArena() {
-        when(arenaRepository.findById(1)).thenReturn(Optional.of(testArena));
+        when(arenaRepository.findById(1))
+                .thenReturn(Optional.of(testArena));
 
         boolean result = arenaService.delete(1);
 
@@ -144,17 +159,20 @@ public class ArenaServiceTest {
         List<ArenaDto> result = arenaService.getArenasByCapacity(100, 50);
         assertTrue(result.isEmpty());
 
-        when(arenaRepository.findByCapacityLessThanEqual(50000)).thenReturn(Arrays.asList(testArena));
+        when(arenaRepository.findByCapacityLessThanEqual(50000))
+                .thenReturn(Arrays.asList(testArena));
         List<ArenaDto> result2 = arenaService.getArenasByCapacity(null, 50000);
         assertEquals(1, result2.size());
         assertEquals(testArenaDto, result2.get(0));
 
-        when(arenaRepository.findByCapacityGreaterThanEqual(40000)).thenReturn(Arrays.asList(testArena));
+        when(arenaRepository.findByCapacityGreaterThanEqual(40000))
+                .thenReturn(Arrays.asList(testArena));
         List<ArenaDto> result3 = arenaService.getArenasByCapacity(40000, null);
         assertEquals(1, result3.size());
         assertEquals(testArenaDto, result3.get(0));
 
-        when(arenaRepository.findByCapacityBetween(40000, 60000)).thenReturn(Arrays.asList(testArena));
+        when(arenaRepository.findByCapacityBetween(40000, 60000))
+                .thenReturn(Arrays.asList(testArena));
         List<ArenaDto> result4 = arenaService.getArenasByCapacity(40000, 60000);
         assertEquals(1, result4.size());
         assertEquals(testArenaDto, result4.get(0));
@@ -169,9 +187,11 @@ public class ArenaServiceTest {
         arenaService.createBulk(arenas);
         verify(arenaRepository).saveAll(anyList());
 
-        assertThrows(BadRequestException.class, () -> arenaService.createBulk(null));
+        assertThrows(BadRequestException.class,
+                () -> arenaService.createBulk(null));
 
         List<Arena> arenas2 = Arrays.asList(new Arena(), new Arena());
-        assertThrows(BadRequestException.class, () -> arenaService.createBulk(arenas2));
+        assertThrows(BadRequestException.class,
+                () -> arenaService.createBulk(arenas2));
     }
 }

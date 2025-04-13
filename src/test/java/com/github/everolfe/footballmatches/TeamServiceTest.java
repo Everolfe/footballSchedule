@@ -32,7 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class TeamServiceTest {
+class TeamServiceTest {
     @Mock
     private TeamRepository teamRepository;
 
