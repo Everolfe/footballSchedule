@@ -206,6 +206,8 @@ public class TeamService {
     public boolean deleteMatchFromTeam(
             final Integer teamId, final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
+        ValidationUtils.validateNonNegative(ID_FIELD, teamId);
+        ValidationUtils.validateNonNegative(ID_FIELD, matchId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         NotExistMessage.getTeamNotExistMessage(teamId)));

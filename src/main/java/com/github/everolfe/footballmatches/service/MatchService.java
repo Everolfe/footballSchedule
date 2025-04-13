@@ -11,7 +11,6 @@ import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
 import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.model.Match;
-import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
@@ -208,8 +207,7 @@ public class MatchService  {
     @AspectAnnotation
     public List<MatchDtoWithArenaAndTeams> findMatchesByDates(
             LocalDateTime startDate, LocalDateTime endDate) {
-        ValidationUtils.validateDateFormat(startDate.toString());
-        ValidationUtils.validateDateFormat(endDate.toString());
+
         List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList = new ArrayList<>();
         if (startDate == null && endDate == null
             || startDate != null && endDate != null && startDate.isAfter(endDate)) {
@@ -252,7 +250,8 @@ public class MatchService  {
         List<Match> validMatches = matches.stream()
                 .filter(Objects::nonNull)
                 .map(match -> {
-                    ValidationUtils.validateCapitalizedWords(TOURNAMENT_NAME_FIELD, match.getTournamentName());
+                    ValidationUtils.validateCapitalizedWords(
+                            TOURNAMENT_NAME_FIELD, match.getTournamentName());
                     ValidationUtils.validateDateFormat(match.getDateTime().toString());
                     return match;
                 })

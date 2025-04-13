@@ -1,6 +1,7 @@
 package com.github.everolfe.footballmatches.exceptions;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 
 public class ValidationUtils {
@@ -25,9 +26,6 @@ public class ValidationUtils {
     }
 
     public static void validateNonNegative(String fieldName, Number value) {
-        if (value == null) {
-            throw new NegativeNumberException(fieldName, null);
-        }
 
         if (value instanceof Integer integer && integer < 0) {
             throw new NegativeNumberException(fieldName, value);
@@ -70,13 +68,8 @@ public class ValidationUtils {
         if (dateString == null || dateString.trim().isEmpty()) {
             throw new InvalidDateException(dateString);
         }
-
-        if (!dateString.matches("\\d{4}-\\d{2}-\\d{2}")) {
-            throw new InvalidDateException(dateString);
-        }
-
         try {
-            LocalDate.parse(dateString);
+            LocalDateTime.parse(dateString);
         } catch (DateTimeParseException e) {
             throw new InvalidDateException(dateString);
         }
