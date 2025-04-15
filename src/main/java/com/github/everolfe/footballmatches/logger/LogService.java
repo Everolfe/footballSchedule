@@ -60,12 +60,12 @@ public class LogService {
         }
         String taskId = String.valueOf(taskCounter.incrementAndGet());
         taskStatus.put(taskId, "IN_PROGRESS");
-        logAsync.generateLogFileAsync(taskId, taskStatus, taskFiles, date); // теперь по-настоящему async
+        logAsync.generateLogFileAsync(taskId, taskStatus, taskFiles, date);
         return taskId;
     }
 
     private boolean isValidDate(String date) {
-        return date != null && date.matches("\\d{4}-\\d{2}-\\d{2}"); // Example: YYYY-MM-DD
+        return date != null && date.matches("\\d{4}-\\d{2}-\\d{2}");
     }
 
     public String getTaskStatus(String taskId) {

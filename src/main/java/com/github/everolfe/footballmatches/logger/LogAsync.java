@@ -7,7 +7,6 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class LogAsync {
 
     private static final String LOG_FILE_PATH = "./logs/logfile.log";
+
     @Async
     public void generateLogFileAsync(
             final String taskId,
