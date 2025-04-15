@@ -27,8 +27,11 @@ public class LogController {
 
     @Operation(summary = "Start async task to generate log file")
     @GetMapping("/task/start")
-    public ResponseEntity<String> startLogTask() {
-        String taskId = logService.startAsyncLogGeneration();
+    public ResponseEntity<String> startLogTask( @Parameter(
+            description = "Log date",
+            example = "2025-02-20",
+            required = true) @RequestParam String date) {
+        String taskId = logService.startAsyncLogGeneration(date);
         return ResponseEntity.ok(taskId);
     }
 

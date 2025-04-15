@@ -54,10 +54,10 @@ public class LogService {
     }
 
     @AspectAnnotation
-    public String startAsyncLogGeneration() {
+    public String startAsyncLogGeneration(final String date) {
         String taskId = String.valueOf(taskCounter.incrementAndGet());
         taskStatus.put(taskId, "IN_PROGRESS");
-        logAsync.generateLogFileAsync(taskId, taskStatus, taskFiles); // теперь по-настоящему async
+        logAsync.generateLogFileAsync(taskId, taskStatus, taskFiles, date); // теперь по-настоящему async
         return taskId;
     }
 
