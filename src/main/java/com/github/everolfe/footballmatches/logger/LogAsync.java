@@ -33,7 +33,7 @@ public class LogAsync {
                 try (Stream<String> lines = Files.lines(logFilePath)) {
                     filteredLines = lines
                             .filter(line -> line.contains(date))
-                            .collect(Collectors.toList());
+                            .toList();
                 }
             }
 
