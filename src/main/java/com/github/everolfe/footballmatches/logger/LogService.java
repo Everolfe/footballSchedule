@@ -55,10 +55,17 @@ public class LogService {
 
     @AspectAnnotation
     public String startAsyncLogGeneration(final String date) {
+        if (!isValidDate(date)) {
+            throw new IllegalArgumentException("Invalid date format");
+        }
         String taskId = String.valueOf(taskCounter.incrementAndGet());
         taskStatus.put(taskId, "IN_PROGRESS");
         logAsync.generateLogFileAsync(taskId, taskStatus, taskFiles, date); // теперь по-настоящему async
         return taskId;
+    }
+
+    private boolean isValidDate(String date) {
+        return date != null && date.matches("\\d{4}-\\d{2}-\\d{2}"); // Example: YYYY-MM-DD
     }
 
     public String getTaskStatus(String taskId) {
