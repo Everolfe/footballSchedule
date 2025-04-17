@@ -32,6 +32,9 @@ public class LogService {
 
     @AspectAnnotation
     public ByteArrayResource getLogsByDate(String date) throws IOException {
+        if (!isValidDate(date)) {
+            throw new IllegalArgumentException("Invalid date format");
+        }
         List<String> filteredLogs = filterLogsByDate(date);
         if (filteredLogs.isEmpty()) {
             return null;

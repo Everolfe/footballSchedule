@@ -1,5 +1,6 @@
 package com.github.everolfe.footballmatches.controllers;
 
+import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithMatchesAndPlayers;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
@@ -52,6 +53,7 @@ public class TeamController {
 
     @Operation(summary = "View all teams",
             description = "Allow you to view all teams")
+    @CounterAnnotation
     @GetMapping
     public ResponseEntity<List<TeamDtoWithMatchesAndPlayers>> readAllTeams() {
         final List<TeamDtoWithMatchesAndPlayers> teams = teamService.readAll();
@@ -60,6 +62,7 @@ public class TeamController {
 
     @Operation(summary = "View all matches by country",
             description = "Allow you to view teams with a given country")
+    @CounterAnnotation
     @GetMapping("/search")
     public ResponseEntity<List<TeamDtoWithPlayers>> readTeamsByCountry(
             @Parameter(description = "Country")
@@ -70,6 +73,7 @@ public class TeamController {
 
     @Operation(summary = "View a team by ID",
             description = "Allow you to view a team with a given ID")
+    @CounterAnnotation
     @GetMapping("/{id}")
     public ResponseEntity<TeamDtoWithPlayers> readTeamById(
             @Parameter(description = "ID of the team to be found ")

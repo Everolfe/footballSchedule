@@ -1,5 +1,6 @@
 package com.github.everolfe.footballmatches.controllers;
 
+import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
@@ -54,6 +55,7 @@ public class MatchController {
 
     @Operation(summary = "View all matches",
             description = "Allow you to view all matches")
+    @CounterAnnotation
     @GetMapping
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readAllMatches() {
         final List<MatchDtoWithArenaAndTeams> matches = matchService.readAll();
@@ -62,6 +64,7 @@ public class MatchController {
 
     @Operation(summary = "View all matches by tournament name",
             description = "Allow you to view matches with a given tournament name")
+    @CounterAnnotation
     @GetMapping("/search")
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByTournament(
             @Parameter(description = "Tournament name")
@@ -73,6 +76,7 @@ public class MatchController {
 
     @Operation(summary = "View all matches by date and time",
             description = "Allow you to view matches with a given date and time")
+    @CounterAnnotation
     @GetMapping("/search/by-date")
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByDateTime(
             @Parameter(description = "Min value of date")
@@ -88,6 +92,7 @@ public class MatchController {
 
     @Operation(summary = "View a match by ID",
             description = "Allow you to view a match with a given ID")
+    @CounterAnnotation
     @GetMapping("/{id}")
     public ResponseEntity<MatchDtoWithArenaAndTeams> readMatchById(
             @Parameter(description = "ID of the match to be found ")

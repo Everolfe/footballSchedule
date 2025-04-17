@@ -1,10 +1,10 @@
 package com.github.everolfe.footballmatches.controllers;
 
+import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDto;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Arena;
-import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.service.ArenaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -51,6 +51,7 @@ public class ArenaController {
 
     @Operation(summary = "View all arenas",
             description = "Allow you to view all arenas")
+    @CounterAnnotation
     @GetMapping
     public ResponseEntity<List<ArenaDtoWithMatches>> readAllArenas() {
         final List<ArenaDtoWithMatches> arenas = arenaService.readAll();
@@ -59,6 +60,7 @@ public class ArenaController {
 
     @Operation(summary = "View all arenas by capacity",
             description = "Allow you to view arenas with a given capacity")
+    @CounterAnnotation
     @GetMapping("/search")
     public ResponseEntity<List<ArenaDto>> readArenasByCapacity(
             @Parameter(description = "Min value of capacity ")
@@ -71,6 +73,7 @@ public class ArenaController {
 
     @Operation(summary = "View an arena by ID",
             description = "Allow you to view an arena with a given ID")
+    @CounterAnnotation
     @GetMapping("/{id}")
     public ResponseEntity<ArenaDto> readArenaById(
             @Parameter(description = "ID of the arena to be found ")

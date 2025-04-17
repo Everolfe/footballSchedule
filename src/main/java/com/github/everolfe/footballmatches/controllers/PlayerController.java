@@ -1,5 +1,6 @@
 package com.github.everolfe.footballmatches.controllers;
 
+import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.dto.player.PlayerDto;
 import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
@@ -51,6 +52,7 @@ public class PlayerController {
 
     @Operation(summary = "View all players",
             description = "Allow you to view all players")
+    @CounterAnnotation
     @GetMapping
     public ResponseEntity<List<PlayerDtoWithTeam>> readAllPlayers() {
         final List<PlayerDtoWithTeam> players = playerService.readAll();
@@ -59,6 +61,7 @@ public class PlayerController {
 
     @Operation(summary = "View a player by ID",
             description = "Allow you to view a player with a given ID")
+    @CounterAnnotation
     @GetMapping("/{id}")
     public ResponseEntity<PlayerDto> readPlayerById(
             @Parameter(description = "ID of the player to be found ")
@@ -70,6 +73,7 @@ public class PlayerController {
 
     @Operation(summary = "View all matches by age",
             description = "Allow you to view matches by a given age")
+    @CounterAnnotation
     @GetMapping("/search")
     public ResponseEntity<List<PlayerDto>> readPlayersByAge(
             @Parameter(description = "Value of age")
