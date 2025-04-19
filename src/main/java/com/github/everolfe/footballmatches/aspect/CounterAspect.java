@@ -2,6 +2,7 @@ package com.github.everolfe.footballmatches.aspect;
 
 import com.github.everolfe.footballmatches.counter.RequestCounter;
 import java.lang.reflect.Method;
+import java.util.Optional;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -21,6 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Component
 public class CounterAspect {
     private static final Logger LOGGER = LoggerFactory.getLogger(CounterAspect.class);
+    private static final String DEFAULT_HTTP_METHOD = "GET";
+    private static final String PATH_SEPARATOR = "/";
+    private static final String ENDPOINT_RESOLUTION_ERROR = "Could not resolve endpoint key";
+
 
     private final RequestCounter requestCounter;
 
@@ -36,8 +41,6 @@ public class CounterAspect {
     public void countRequest(JoinPoint joinPoint) {
         String endpointKey = resolveEndpointKey(joinPoint);
         int count = requestCounter.incrementAndGet(endpointKey);
-
-        LOGGER.info("Endpoint '{}' called {} times", endpointKey, count);
     }
 
     private String resolveEndpointKey(JoinPoint joinPoint) {
@@ -45,49 +48,74 @@ public class CounterAspect {
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             Method method = signature.getMethod();
 
-            // Получаем базовый путь из класса
-            RequestMapping classMapping = method.getDeclaringClass()
-                    .getAnnotation(RequestMapping.class);
-            String basePath = classMapping != null && classMapping.value().length > 0
-                    ? classMapping.value()[0]
-                    : "";
+            String basePath = resolveBasePath(method);
+            String methodPath = resolveMethodPath(method);
+            String httpMethod = resolveHttpMethod(method);
 
-            // Получаем путь и HTTP метод из аннотаций метода
-            String methodPath = "";
-            String httpMethod = "GET";
-
-            if (method.isAnnotationPresent(GetMapping.class)) {
-                GetMapping getMapping = method.getAnnotation(GetMapping.class);
-                methodPath = getMapping.value().length > 0 ? getMapping.value()[0] : "";
-                httpMethod = "GET";
-            } else if (method.isAnnotationPresent(PostMapping.class)) {
-                PostMapping postMapping = method.getAnnotation(PostMapping.class);
-                methodPath = postMapping.value().length > 0 ? postMapping.value()[0] : "";
-                httpMethod = "POST";
-            } else if (method.isAnnotationPresent(PutMapping.class)) {
-                PutMapping putMapping = method.getAnnotation(PutMapping.class);
-                methodPath = putMapping.value().length > 0 ? putMapping.value()[0] : "";
-                httpMethod = "PUT";
-            } else if (method.isAnnotationPresent(DeleteMapping.class)) {
-                DeleteMapping deleteMapping = method.getAnnotation(DeleteMapping.class);
-                methodPath = deleteMapping.value().length > 0 ? deleteMapping.value()[0] : "";
-                httpMethod = "DELETE";
-            } else if (method.isAnnotationPresent(RequestMapping.class)) {
-                RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-                methodPath = requestMapping.value().length > 0 ? requestMapping.value()[0] : "";
-                httpMethod = requestMapping.method().length > 0
-                        ? requestMapping.method()[0].name()
-                        : "GET";
-            }
-
-            String fullPath = basePath + (methodPath.startsWith("/")
-                    ? methodPath : "/" + methodPath);
-            return httpMethod + " " + fullPath;
+            String fullPath = buildFullPath(basePath, methodPath);
+            return String.format("%s %s", httpMethod, fullPath);
 
         } catch (Exception e) {
-            LOGGER.warn("Could not resolve endpoint key", e);
+            LOGGER.warn(ENDPOINT_RESOLUTION_ERROR, e);
             return joinPoint.getSignature().toShortString();
         }
     }
 
+    private String resolveBasePath(Method method) {
+        return Optional.ofNullable(method.getDeclaringClass().getAnnotation(RequestMapping.class))
+                .map(RequestMapping::value)
+                .filter(values -> values.length > 0)
+                .map(values -> values[0])
+                .orElse("");
+    }
+
+    private String resolveHttpMethod(Method method) {
+        if (method.isAnnotationPresent(GetMapping.class)) return "GET";
+        if (method.isAnnotationPresent(PostMapping.class)) return "POST";
+        if (method.isAnnotationPresent(PutMapping.class)) return "PUT";
+        if (method.isAnnotationPresent(DeleteMapping.class)) return "DELETE";
+        if (method.isAnnotationPresent(RequestMapping.class)) {
+            RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+            return requestMapping.method().length > 0 ?
+                    requestMapping.method()[0].name() :
+                    DEFAULT_HTTP_METHOD;
+        }
+        return DEFAULT_HTTP_METHOD;
+    }
+
+    private String resolveMethodPath(Method method) {
+        if (method.isAnnotationPresent(GetMapping.class)) {
+            return getPathValue(method.getAnnotation(GetMapping.class).value());
+        } else if (method.isAnnotationPresent(PostMapping.class)) {
+            return getPathValue(method.getAnnotation(PostMapping.class).value());
+        } else if (method.isAnnotationPresent(PutMapping.class)) {
+            return getPathValue(method.getAnnotation(PutMapping.class).value());
+        } else if (method.isAnnotationPresent(DeleteMapping.class)) {
+            return getPathValue(method.getAnnotation(DeleteMapping.class).value());
+        } else if (method.isAnnotationPresent(RequestMapping.class)) {
+            return getPathValue(method.getAnnotation(RequestMapping.class).value());
+        }
+        return "";
+    }
+
+    private String getPathValue(String[] pathValues) {
+        return pathValues.length > 0 ? pathValues[0] : "";
+    }
+
+    private String buildFullPath(String basePath, String methodPath) {
+        StringBuilder pathBuilder = new StringBuilder();
+
+        if (!basePath.isEmpty()) {
+            pathBuilder.append(basePath);
+        }
+
+        if (!methodPath.isEmpty()) {
+            if (!methodPath.startsWith(PATH_SEPARATOR) && !basePath.endsWith(PATH_SEPARATOR)) {
+                pathBuilder.append(PATH_SEPARATOR);
+            }
+            pathBuilder.append(methodPath);
+        }
+
+        return pathBuilder.toString();
+    }
 }
