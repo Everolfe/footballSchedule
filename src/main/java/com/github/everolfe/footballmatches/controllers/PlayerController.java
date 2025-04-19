@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PlayerConstants.TAG_NAME,
         description = PlayerConstants.TAG_DESCRIPTION)
 @RestController
-@RequestMapping("/players")
+@RequestMapping(PlayerConstants.PLAYER_CREATE)
 @AllArgsConstructor
 public class PlayerController {
 
