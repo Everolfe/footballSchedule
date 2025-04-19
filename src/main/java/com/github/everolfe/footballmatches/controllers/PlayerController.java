@@ -1,6 +1,7 @@
 package com.github.everolfe.footballmatches.controllers;
 
 import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
+import com.github.everolfe.footballmatches.controllers.constants.PlayerConstants;
 import com.github.everolfe.footballmatches.dto.player.PlayerDto;
 import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
@@ -25,8 +26,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-@Tag(name = "PlayerController",
-        description = "You can edit and view information about players")
+@Tag(name = PlayerConstants.TAG_NAME,
+        description = PlayerConstants.TAG_DESCRIPTION)
 @RestController
 @RequestMapping("/players")
 @AllArgsConstructor
@@ -34,18 +35,20 @@ public class PlayerController {
 
     private final PlayerService playerService;
 
-    @Operation(summary = "Creating a player",
-            description = "Allow you create a player")
+    private static final String NEW_DATA = "New Data";
+
+    @Operation(summary = PlayerConstants.CREATE_SUMMARY,
+            description = PlayerConstants.CREATE_DESCRIPTION)
     @PostMapping("/create")
     public ResponseEntity<Void> createPlayer(
-            @Parameter(description = "JSON object of new player ")
+            @Parameter(description = PlayerConstants.PLAYER_JSON_DESCRIPTION)
             @Valid @RequestBody final Player player) {
         playerService.create(player);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "View all players",
-            description = "Allow you to view all players")
+    @Operation(summary = PlayerConstants.GET_ALL_SUMMARY,
+            description = PlayerConstants.GET_ALL_DESCRIPTION)
     @CounterAnnotation
     @GetMapping
     public ResponseEntity<List<PlayerDtoWithTeam>> readAllPlayers() {
@@ -53,56 +56,57 @@ public class PlayerController {
         return Handler.handleResponse(players, !players.isEmpty());
     }
 
-    @Operation(summary = "View a player by ID",
-            description = "Allow you to view a player with a given ID")
+    @Operation(summary = PlayerConstants.GET_BY_ID_SUMMARY,
+            description = PlayerConstants.GET_BY_ID_DESCRIPTION)
     @CounterAnnotation
     @GetMapping("/{id}")
     public ResponseEntity<PlayerDto> readPlayerById(
-            @Parameter(description = "ID of the player to be found ")
+            @Parameter(description = PlayerConstants.PLAYER_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         final PlayerDto player = playerService.read(id);
         return Handler.handleResponse(player, player != null);
     }
 
-    @Operation(summary = "View all matches by age",
-            description = "Allow you to view matches by a given age")
-    @CounterAnnotation
-    @GetMapping("/search")
-    public ResponseEntity<List<PlayerDto>> readPlayersByAge(
-            @Parameter(description = "Value of age")
-            @RequestParam(value = "age") final Integer age) {
-        final List<PlayerDto> players = playerService.getPlayersByAge(age);
-        return Handler.handleResponse(players, !players.isEmpty());
-    }
-
-    @Operation(summary = "Сhange player data",
-            description = "Allow you to change player data")
+    @Operation(summary = PlayerConstants.UPDATE_SUMMARY,
+            description = PlayerConstants.UPDATE_DESCRIPTION)
     @PutMapping("/update/{id}")
     public ResponseEntity<Void> updatePlayer(
-            @Parameter(description = "ID of the player to be update data")
+            @Parameter(description = PlayerConstants.PLAYER_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id,
-            @Parameter(description = "New data")
+            @Parameter(description = NEW_DATA)
             @Valid @RequestBody final Player player)
             throws ResourcesNotFoundException {
         return Handler.handleResponse(null, playerService.update(player, id));
     }
 
-    @Operation(summary = "Delete player",
-            description = "Allow you to delete player by it ID")
+    @Operation(summary = PlayerConstants.DELETE_SUMMARY,
+            description = PlayerConstants.DELETE_DESCRIPTION)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlayer(
-            @Parameter(description = "ID of the player to be delete")
+            @Parameter(description = PlayerConstants.PLAYER_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         return Handler.handleResponse(null, playerService.delete(id));
     }
 
-    @Operation(summary = "Bulk create players",
-            description = "Allow you to create multiple players at once")
+    @Operation(summary = PlayerConstants.GET_BY_AGE_SUMMARY,
+            description = PlayerConstants.GET_BY_AGE_DESCRIPTION)
+    @CounterAnnotation
+    @GetMapping("/search")
+    public ResponseEntity<List<PlayerDto>> readPlayersByAge(
+            @Parameter(description = PlayerConstants.AGE_DESCRIPTION)
+            @RequestParam(value = "age") final Integer age) {
+        final List<PlayerDto> players = playerService.getPlayersByAge(age);
+        return Handler.handleResponse(players, !players.isEmpty());
+    }
+
+
+    @Operation(summary = PlayerConstants.BULK_CREATE_SUMMARY,
+            description = PlayerConstants.BULK_CREATE_DESCRIPTION)
     @PostMapping("/bulk-create")
     public ResponseEntity<Void> createPlayersBulk(
-            @Parameter(description = "List of players to create")
+            @Parameter(description = PlayerConstants.PLAYERS_LIST_DESCRIPTION)
             @RequestBody final List<Player> players) {
 
         playerService.createBulk(players);

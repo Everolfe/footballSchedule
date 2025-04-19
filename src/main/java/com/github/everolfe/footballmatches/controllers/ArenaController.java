@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ArenaController {
     private final ArenaService arenaService;
 
+    private static final String NEW_DATA = "New Data";
 
     @Operation(summary = ArenaConstants.CREATE_SUMMARY,
             description = ArenaConstants.CREATE_DESCRIPTION)
@@ -54,19 +55,6 @@ public class ArenaController {
         return Handler.handleResponse(arenas, !arenas.isEmpty());
     }
 
-    @Operation(summary = ArenaConstants.GET_BY_CAPACITY_SUMMARY,
-            description = ArenaConstants.GET_BY_CAPACITY_DESCRIPTION)
-    @CounterAnnotation
-    @GetMapping("/search")
-    public ResponseEntity<List<ArenaDto>> readArenasByCapacity(
-            @Parameter(description = ArenaConstants.MIN_CAPACITY_DESCRIPTION)
-            @RequestParam(required = false) Integer minCapacity,
-            @Parameter(description = ArenaConstants.MAX_CAPACITY_DESCRIPTION)
-            @RequestParam(required = false) Integer maxCapacity) {
-        final List<ArenaDto> arenas = arenaService.getArenasByCapacity(minCapacity, maxCapacity);
-        return Handler.handleResponse(arenas, !arenas.isEmpty());
-    }
-
     @Operation(summary = ArenaConstants.GET_BY_ID_SUMMARY,
             description = ArenaConstants.GET_BY_ID_DESCRIPTION)
     @CounterAnnotation
@@ -83,29 +71,43 @@ public class ArenaController {
             description = ArenaConstants.UPDATE_DESCRIPTION)
     @PutMapping("/update/{id}")
     public ResponseEntity<Void> updateArena(
-            @Parameter(description = "ID of the arena to be update data")
+            @Parameter(description = ArenaConstants.ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id,
-            @Parameter(description = "New data")
+            @Parameter(description = NEW_DATA)
             @Valid @RequestBody final Arena arena)
             throws ResourcesNotFoundException {
         return Handler.handleResponse(null, arenaService.update(arena, id));
     }
 
-    @Operation(summary = "Delete arena",
-            description = "Allow you to delete arena by it ID")
+    @Operation(summary = ArenaConstants.DELETE_SUMMARY,
+            description = ArenaConstants.DELETE_DESCRIPTION)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteArena(
-            @Parameter(description = "ID of the arena to be delete")
+            @Parameter(description = ArenaConstants.ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         return Handler.handleResponse(null, arenaService.delete(id));
     }
 
-    @Operation(summary = "Bulk create arenas",
-            description = "Allow you to create multiple arenas at once")
+    @Operation(summary = ArenaConstants.GET_BY_CAPACITY_SUMMARY,
+            description = ArenaConstants.GET_BY_CAPACITY_DESCRIPTION)
+    @CounterAnnotation
+    @GetMapping("/search")
+    public ResponseEntity<List<ArenaDto>> readArenasByCapacity(
+            @Parameter(description = ArenaConstants.MIN_CAPACITY_DESCRIPTION)
+            @RequestParam(required = false) Integer minCapacity,
+            @Parameter(description = ArenaConstants.MAX_CAPACITY_DESCRIPTION)
+            @RequestParam(required = false) Integer maxCapacity) {
+        final List<ArenaDto> arenas = arenaService.getArenasByCapacity(minCapacity, maxCapacity);
+        return Handler.handleResponse(arenas, !arenas.isEmpty());
+    }
+
+
+    @Operation(summary = ArenaConstants.BULK_CREATE_SUMMARY,
+            description = ArenaConstants.BULK_CREATE_DESCRIPTION)
     @PostMapping("/bulk-create")
     public ResponseEntity<Void> createArenasBulk(
-            @Parameter(description = "List of arenas to create")
+            @Parameter(description = ArenaConstants.ARENAS_LIST_DESCRIPTION)
             @RequestBody final List<Arena> arenas) {
 
         arenaService.createBulk(arenas);
