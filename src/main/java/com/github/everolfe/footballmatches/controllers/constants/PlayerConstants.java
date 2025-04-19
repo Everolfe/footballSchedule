@@ -3,9 +3,6 @@ package com.github.everolfe.footballmatches.controllers.constants;
 public final class PlayerConstants {
     private PlayerConstants() {}
 
-    //URL
-    public static final String PLAYER_CREATE = "/players";
-
     // Tag
     public static final String TAG_NAME = "Player Controller";
     public static final String TAG_DESCRIPTION = "Provides operations for managing football players";

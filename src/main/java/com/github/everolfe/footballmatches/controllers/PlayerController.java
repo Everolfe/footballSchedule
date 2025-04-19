@@ -2,6 +2,7 @@ package com.github.everolfe.footballmatches.controllers;
 
 import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.controllers.constants.PlayerConstants;
+import com.github.everolfe.footballmatches.controllers.constants.UrlConstants;
 import com.github.everolfe.footballmatches.dto.player.PlayerDto;
 import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
@@ -29,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PlayerConstants.TAG_NAME,
         description = PlayerConstants.TAG_DESCRIPTION)
 @RestController
-@RequestMapping(PlayerConstants.PLAYER_CREATE)
+@RequestMapping(UrlConstants.PLAYERS_URL)
 @AllArgsConstructor
 public class PlayerController {
 
@@ -39,7 +40,7 @@ public class PlayerController {
 
     @Operation(summary = PlayerConstants.CREATE_SUMMARY,
             description = PlayerConstants.CREATE_DESCRIPTION)
-    @PostMapping("/create")
+    @PostMapping(UrlConstants.CREATE_URL)
     public ResponseEntity<Void> createPlayer(
             @Parameter(description = PlayerConstants.PLAYER_JSON_DESCRIPTION)
             @Valid @RequestBody final Player player) {
@@ -59,7 +60,7 @@ public class PlayerController {
     @Operation(summary = PlayerConstants.GET_BY_ID_SUMMARY,
             description = PlayerConstants.GET_BY_ID_DESCRIPTION)
     @CounterAnnotation
-    @GetMapping("/{id}")
+    @GetMapping(UrlConstants.ID_URL)
     public ResponseEntity<PlayerDto> readPlayerById(
             @Parameter(description = PlayerConstants.PLAYER_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id)
@@ -70,7 +71,7 @@ public class PlayerController {
 
     @Operation(summary = PlayerConstants.UPDATE_SUMMARY,
             description = PlayerConstants.UPDATE_DESCRIPTION)
-    @PutMapping("/update/{id}")
+    @PutMapping(UrlConstants.ID_URL)
     public ResponseEntity<Void> updatePlayer(
             @Parameter(description = PlayerConstants.PLAYER_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id,
@@ -82,7 +83,7 @@ public class PlayerController {
 
     @Operation(summary = PlayerConstants.DELETE_SUMMARY,
             description = PlayerConstants.DELETE_DESCRIPTION)
-    @DeleteMapping("/{id}")
+    @DeleteMapping(UrlConstants.ID_URL)
     public ResponseEntity<Void> deletePlayer(
             @Parameter(description = PlayerConstants.PLAYER_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id)
@@ -93,7 +94,7 @@ public class PlayerController {
     @Operation(summary = PlayerConstants.GET_BY_AGE_SUMMARY,
             description = PlayerConstants.GET_BY_AGE_DESCRIPTION)
     @CounterAnnotation
-    @GetMapping("/search")
+    @GetMapping(UrlConstants.SEARCH_URL)
     public ResponseEntity<List<PlayerDto>> readPlayersByAge(
             @Parameter(description = PlayerConstants.AGE_DESCRIPTION)
             @RequestParam(value = "age") final Integer age) {
@@ -104,7 +105,7 @@ public class PlayerController {
 
     @Operation(summary = PlayerConstants.BULK_CREATE_SUMMARY,
             description = PlayerConstants.BULK_CREATE_DESCRIPTION)
-    @PostMapping("/bulk-create")
+    @PostMapping(UrlConstants.BULK_CREATE)
     public ResponseEntity<Void> createPlayersBulk(
             @Parameter(description = PlayerConstants.PLAYERS_LIST_DESCRIPTION)
             @RequestBody final List<Player> players) {

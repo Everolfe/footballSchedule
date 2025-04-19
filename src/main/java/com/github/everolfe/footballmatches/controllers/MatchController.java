@@ -2,6 +2,7 @@ package com.github.everolfe.footballmatches.controllers;
 
 import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.controllers.constants.MatchConstants;
+import com.github.everolfe.footballmatches.controllers.constants.UrlConstants;
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
@@ -31,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = MatchConstants.TAG_NAME,
      description = MatchConstants.TAG_DESCRIPTION)
 @RestController
-@RequestMapping("/matches")
+@RequestMapping(UrlConstants.MATCHES_URL)
 @AllArgsConstructor
 public class MatchController {
 
@@ -41,7 +42,7 @@ public class MatchController {
 
     @Operation(summary = MatchConstants.CREATE_SUMMARY,
             description = MatchConstants.CREATE_DESCRIPTION)
-    @PostMapping("/create")
+    @PostMapping(UrlConstants.CREATE_URL)
     public ResponseEntity<Void> createMatch(
             @Parameter(description = MatchConstants.MATCH_JSON_DESCRIPTION)
             @Valid @RequestBody final Match match) {
@@ -61,7 +62,7 @@ public class MatchController {
     @Operation(summary = MatchConstants.GET_BY_ID_SUMMARY,
             description = MatchConstants.GET_BY_ID_DESCRIPTION)
     @CounterAnnotation
-    @GetMapping("/{id}")
+    @GetMapping(UrlConstants.ID_URL)
     public ResponseEntity<MatchDtoWithArenaAndTeams> readMatchById(
             @Parameter(description = MatchConstants.MATCH_ID_DESCRIPTION)
             @PathVariable final Integer id) throws ResourcesNotFoundException {
@@ -71,7 +72,7 @@ public class MatchController {
 
     @Operation(summary = MatchConstants.DELETE_SUMMARY,
             description = MatchConstants.DELETE_DESCRIPTION)
-    @DeleteMapping("/{id}")
+    @DeleteMapping(UrlConstants.ID_URL)
     public ResponseEntity<Void> deleteMatch(
             @Parameter(description = MatchConstants.MATCH_ID_DESCRIPTION)
             @PathVariable final Integer id)
@@ -81,7 +82,7 @@ public class MatchController {
 
     @Operation(summary = MatchConstants.UPDATE_SUMMARY,
             description = MatchConstants.UPDATE_DESCRIPTION)
-    @PutMapping("/{id}")
+    @PutMapping(UrlConstants.ID_URL)
     public ResponseEntity<Void> updateMatch(
             @Parameter(description = MatchConstants.MATCH_ID_DESCRIPTION)
             @PathVariable final Integer id,
@@ -94,7 +95,7 @@ public class MatchController {
     @Operation(summary = MatchConstants.GET_BY_TOURNAMENT_SUMMARY,
             description = MatchConstants.GET_BY_TOURNAMENT_DESCRIPTION)
     @CounterAnnotation
-    @GetMapping("/search")
+    @GetMapping(UrlConstants.SEARCH_URL)
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByTournament(
             @Parameter(description = MatchConstants.TOURNAMENT_DESCRIPTION)
             @RequestParam(value = "tournament") final String tournamentName) {
@@ -106,7 +107,7 @@ public class MatchController {
     @Operation(summary = MatchConstants.GET_BY_DATE_SUMMARY,
             description = MatchConstants.GET_BY_DATE_DESCRIPTION)
     @CounterAnnotation
-    @GetMapping("/search/by-date")
+    @GetMapping(UrlConstants.SEARCH_BY_DATE_URL)
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByDateTime(
             @Parameter(description = MatchConstants.START_DATE_DESCRIPTION)
             @RequestParam(value = "startDate", required = false)
@@ -124,57 +125,55 @@ public class MatchController {
 
     @Operation(summary = MatchConstants.SET_ARENA_SUMMARY,
             description = MatchConstants.SET_ARENA_DESCRIPTION)
-    @PatchMapping("/{matchId}/set-arena")
+    @PatchMapping(UrlConstants.SET_ARENA_URL)
     public ResponseEntity<Void> setNewArena(
             @Parameter(description = MatchConstants.MATCH_ID_DESCRIPTION)
-            @PathVariable final Integer matchId,
+            @PathVariable final Integer id,
             @Parameter(description = MatchConstants.ARENA_ID_DESCRIPTION)
-            @RequestParam(value = "newArenaId") final Integer newArenaId)
+            @RequestParam(value = "arenaId") final Integer arenaId)
             throws ResourcesNotFoundException {
-        return Handler.handleResponse(null, matchService.setNewArena(matchId, newArenaId));
+        return Handler.handleResponse(null, matchService.setNewArena(id, arenaId));
     }
 
     @Operation(summary = MatchConstants.SET_TIME_SUMMARY,
             description = MatchConstants.SET_TIME_DESCRIPTION)
-    @PatchMapping("/{matchId}/set-time")
+    @PatchMapping(UrlConstants.SET_TIME_URL)
     public ResponseEntity<Void> updateMatchTime(
             @Parameter(description =MatchConstants.MATCH_ID_DESCRIPTION)
-            @PathVariable final Integer matchId,
+            @PathVariable final Integer id,
             @Parameter(description = MatchConstants.TIME_DESCRIPTION)
             @RequestParam(value = "time") final LocalDateTime time)
             throws ResourcesNotFoundException {
-        return Handler.handleResponse(null, matchService.updateMatchTime(matchId, time));
+        return Handler.handleResponse(null, matchService.updateMatchTime(id, time));
     }
-
-
 
     @Operation(summary = MatchConstants.ADD_TEAM_SUMMARY,
             description = MatchConstants.ADD_TEAM_DESCRIPTION)
-    @PatchMapping("/{matchId}/add-team")
+    @PatchMapping(UrlConstants.ADD_TEAM_URL)
     public ResponseEntity<Void> addTeamToMatch(
             @Parameter(description = MatchConstants.MATCH_ID_DESCRIPTION)
-            @PathVariable final Integer matchId,
+            @PathVariable final Integer id,
             @Parameter(description = MatchConstants.TEAM_ID_DESCRIPTION)
             @RequestParam(value = "teamId") final Integer teamId)
             throws ResourcesNotFoundException, BadRequestException {
-        return Handler.handleResponse(null, matchService.addTeamToMatch(matchId, teamId));
+        return Handler.handleResponse(null, matchService.addTeamToMatch(id, teamId));
     }
 
     @Operation(summary = MatchConstants.REMOVE_TEAM_SUMMARY,
             description = MatchConstants.REMOVE_TEAM_DESCRIPTION)
-    @PatchMapping("/{matchId}/remove-team")
+    @PatchMapping(UrlConstants.REMOVE_TEAM_URL)
     public ResponseEntity<Void> removeTeamFromMatch(
             @Parameter(description = MatchConstants.MATCH_ID_DESCRIPTION)
-            @PathVariable final Integer matchId,
+            @PathVariable final Integer id,
             @Parameter(description = MatchConstants.TEAM_ID_DESCRIPTION)
             @RequestParam(value = "teamId") final Integer teamId)
             throws ResourcesNotFoundException, BadRequestException {
-        return Handler.handleResponse(null, matchService.removeTeamFromMatch(matchId, teamId));
+        return Handler.handleResponse(null, matchService.removeTeamFromMatch(id, teamId));
     }
 
     @Operation(summary = MatchConstants.BULK_CREATE_SUMMARY,
             description = MatchConstants.BULK_CREATE_DESCRIPTION)
-    @PostMapping("/bulk-create")
+    @PostMapping(UrlConstants.BULK_CREATE)
     public ResponseEntity<Void> createMatchesBulk(
             @Parameter(description = MatchConstants.MATCHES_LIST_DESCRIPTION)
             @RequestBody final List<Match> matches) {

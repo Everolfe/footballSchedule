@@ -2,6 +2,7 @@ package com.github.everolfe.footballmatches.controllers;
 
 import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.controllers.constants.TeamConstants;
+import com.github.everolfe.footballmatches.controllers.constants.UrlConstants;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithMatchesAndPlayers;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = TeamConstants.TAG_NAME,
         description = TeamConstants.TAG_DESCRIPTION)
 @RestController
-@RequestMapping("/teams")
+@RequestMapping(UrlConstants.TEAMS_URL)
 @AllArgsConstructor
 public class TeamController {
 
@@ -40,7 +41,7 @@ public class TeamController {
 
     @Operation(summary = TeamConstants.CREATE_SUMMARY,
             description = TeamConstants.CREATE_DESCRIPTION)
-    @PostMapping("/create")
+    @PostMapping(UrlConstants.CREATE_URL)
     public ResponseEntity<Void> createTeam(
             @Parameter(description = TeamConstants.TEAM_JSON_DESCRIPTION)
             @Valid @RequestBody final Team team) {
@@ -60,7 +61,7 @@ public class TeamController {
     @Operation(summary = TeamConstants.GET_BY_ID_SUMMARY,
             description = TeamConstants.GET_BY_ID_DESCRIPTION)
     @CounterAnnotation
-    @GetMapping("/{id}")
+    @GetMapping(UrlConstants.ID_URL)
     public ResponseEntity<TeamDtoWithPlayers> readTeamById(
             @Parameter(description = TeamConstants.TEAM_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id) {
@@ -70,7 +71,7 @@ public class TeamController {
 
     @Operation(summary = TeamConstants.UPDATE_SUMMARY,
             description = TeamConstants.UPDATE_DESCRIPTION)
-    @PutMapping("/update/{id}")
+    @PutMapping(UrlConstants.ID_URL)
     public ResponseEntity<Void> updateTeam(
             @Parameter(description = TeamConstants.TEAM_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id,
@@ -81,7 +82,7 @@ public class TeamController {
 
     @Operation(summary = TeamConstants.DELETE_SUMMARY,
             description = TeamConstants.DELETE_DESCRIPTION)
-    @DeleteMapping("/{id}")
+    @DeleteMapping(UrlConstants.ID_URL)
     public ResponseEntity<Void> deleteTeam(
             @Parameter(description = TeamConstants.TEAM_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id) {
@@ -91,7 +92,7 @@ public class TeamController {
     @Operation(summary = TeamConstants.GET_BY_COUNTRY_SUMMARY,
             description = TeamConstants.GET_BY_COUNTRY_DESCRIPTION)
     @CounterAnnotation
-    @GetMapping("/search")
+    @GetMapping(UrlConstants.SEARCH_URL)
     public ResponseEntity<List<TeamDtoWithPlayers>> readTeamsByCountry(
             @Parameter(description = TeamConstants.COUNTRY_DESCRIPTION)
             @RequestParam(value = "country") final String country) {
@@ -103,57 +104,57 @@ public class TeamController {
 
     @Operation(summary = TeamConstants.REMOVE_PLAYER_SUMMARY,
             description = TeamConstants.REMOVE_PLAYER_DESCRIPTION)
-    @PatchMapping("/{teamId}/remove-player")
+    @PatchMapping(UrlConstants.REMOVE_PLAYER_URL)
     public ResponseEntity<Void> deletePlayerFromTeam(
             @Parameter(description = TeamConstants.TEAM_ID_DESCRIPTION)
-            @PathVariable(name = "teamId") final Integer teamId,
+            @PathVariable(name = "id") final Integer id,
             @Parameter(description = TeamConstants.PLAYER_ID_DESCRIPTION)
             @RequestParam(value = "playerId") final Integer playerId)
             throws ResourcesNotFoundException, BadRequestException {
-        return Handler.handleResponse(null, teamService.deletePlayerFromTeam(teamId, playerId));
+        return Handler.handleResponse(null, teamService.deletePlayerFromTeam(id, playerId));
     }
 
     @Operation(summary = TeamConstants.REMOVE_MATCH_SUMMARY,
             description = TeamConstants.REMOVE_MATCH_DESCRIPTION)
-    @PatchMapping("/{teamId}/remove-match")
+    @PatchMapping(UrlConstants.REMOVE_MATCH_URL)
     public ResponseEntity<Void> deleteMatchFromTeam(
             @Parameter(description = TeamConstants.TEAM_ID_DESCRIPTION)
-            @PathVariable(name = "teamId") final Integer teamId,
+            @PathVariable(name = "id") final Integer id,
             @Parameter(description = TeamConstants.MATCH_ID_DESCRIPTION)
             @RequestParam(value = "matchId") final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        return Handler.handleResponse(null, teamService.deleteMatchFromTeam(teamId, matchId));
+        return Handler.handleResponse(null, teamService.deleteMatchFromTeam(id, matchId));
     }
 
     @Operation(summary = TeamConstants.ADD_MATCH_SUMMARY,
             description = TeamConstants.ADD_MATCH_DESCRIPTION)
-    @PatchMapping("/{teamId}/add-match")
+    @PatchMapping(UrlConstants.ADD_MATCH_URL)
     public ResponseEntity<Void> addMatchToTeam(
             @Parameter(description = TeamConstants.TEAM_ID_DESCRIPTION)
-            @PathVariable(name = "teamId") final Integer teamId,
+            @PathVariable(name = "id") final Integer id,
             @Parameter(description = TeamConstants.MATCH_ID_DESCRIPTION)
             @RequestParam(value = "matchId") final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        return Handler.handleResponse(null, teamService.addMatchToTeam(teamId, matchId));
+        return Handler.handleResponse(null, teamService.addMatchToTeam(id, matchId));
     }
 
     @Operation(summary = TeamConstants.ADD_PLAYER_SUMMARY,
             description = TeamConstants.ADD_PLAYER_DESCRIPTION)
-    @PatchMapping("/{teamId}/add-player")
+    @PatchMapping(UrlConstants.ADD_PLAYER_URL)
     public ResponseEntity<Void> addPlayerToTeam(
             @Parameter(description = TeamConstants.TEAM_ID_DESCRIPTION)
-            @PathVariable(name = "teamId") final Integer teamId,
+            @PathVariable(name = "id") final Integer id,
             @Parameter(description = TeamConstants.PLAYER_ID_DESCRIPTION)
             @RequestParam(value = "playerId") final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        return Handler.handleResponse(null, teamService.addPlayerToTeam(teamId, matchId));
+        return Handler.handleResponse(null, teamService.addPlayerToTeam(id, matchId));
     }
 
 
 
     @Operation(summary = TeamConstants.BULK_CREATE_SUMMARY,
             description = TeamConstants.BULK_CREATE_DESCRIPTION)
-    @PostMapping("/bulk-create")
+    @PostMapping(UrlConstants.BULK_CREATE)
     public ResponseEntity<Void> createTeamsBulk(
             @Parameter(description = TeamConstants.TEAMS_LIST_DESCRIPTION)
             @RequestBody final List<Team> teams) {

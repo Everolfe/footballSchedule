@@ -2,6 +2,7 @@ package com.github.everolfe.footballmatches.controllers;
 
 import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.controllers.constants.ArenaConstants;
+import com.github.everolfe.footballmatches.controllers.constants.UrlConstants;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDto;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
@@ -29,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = ArenaConstants.TAG_NAME,
     description = ArenaConstants.TAG_DESCRIPTION)
 @RestController
-@RequestMapping("/arenas")
+@RequestMapping(UrlConstants.ARENAS_URL)
 @AllArgsConstructor
 public class ArenaController {
     private final ArenaService arenaService;
@@ -38,7 +39,7 @@ public class ArenaController {
 
     @Operation(summary = ArenaConstants.CREATE_SUMMARY,
             description = ArenaConstants.CREATE_DESCRIPTION)
-    @PostMapping("/create")
+    @PostMapping(UrlConstants.CREATE_URL)
     public ResponseEntity<Void> createArena(
             @Parameter(description = ArenaConstants.ARENA_JSON_DESCRIPTION)
             @Valid @RequestBody final Arena arena) {
@@ -58,7 +59,7 @@ public class ArenaController {
     @Operation(summary = ArenaConstants.GET_BY_ID_SUMMARY,
             description = ArenaConstants.GET_BY_ID_DESCRIPTION)
     @CounterAnnotation
-    @GetMapping("/{id}")
+    @GetMapping(UrlConstants.ID_URL)
     public ResponseEntity<ArenaDto> readArenaById(
             @Parameter(description = ArenaConstants.ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id)
@@ -69,7 +70,7 @@ public class ArenaController {
 
     @Operation(summary = ArenaConstants.UPDATE_SUMMARY,
             description = ArenaConstants.UPDATE_DESCRIPTION)
-    @PutMapping("/update/{id}")
+    @PutMapping(UrlConstants.ID_URL)
     public ResponseEntity<Void> updateArena(
             @Parameter(description = ArenaConstants.ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id,
@@ -81,7 +82,7 @@ public class ArenaController {
 
     @Operation(summary = ArenaConstants.DELETE_SUMMARY,
             description = ArenaConstants.DELETE_DESCRIPTION)
-    @DeleteMapping("/{id}")
+    @DeleteMapping(UrlConstants.ID_URL)
     public ResponseEntity<Void> deleteArena(
             @Parameter(description = ArenaConstants.ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id)
@@ -92,7 +93,7 @@ public class ArenaController {
     @Operation(summary = ArenaConstants.GET_BY_CAPACITY_SUMMARY,
             description = ArenaConstants.GET_BY_CAPACITY_DESCRIPTION)
     @CounterAnnotation
-    @GetMapping("/search")
+    @GetMapping(UrlConstants.SEARCH_URL)
     public ResponseEntity<List<ArenaDto>> readArenasByCapacity(
             @Parameter(description = ArenaConstants.MIN_CAPACITY_DESCRIPTION)
             @RequestParam(required = false) Integer minCapacity,
@@ -105,7 +106,7 @@ public class ArenaController {
 
     @Operation(summary = ArenaConstants.BULK_CREATE_SUMMARY,
             description = ArenaConstants.BULK_CREATE_DESCRIPTION)
-    @PostMapping("/bulk-create")
+    @PostMapping(UrlConstants.BULK_CREATE)
     public ResponseEntity<Void> createArenasBulk(
             @Parameter(description = ArenaConstants.ARENAS_LIST_DESCRIPTION)
             @RequestBody final List<Arena> arenas) {
