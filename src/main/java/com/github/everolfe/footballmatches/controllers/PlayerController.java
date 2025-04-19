@@ -34,12 +34,6 @@ public class PlayerController {
 
     private final PlayerService playerService;
 
-    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition) {
-        return condition
-                ? ResponseEntity.ok(body)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-
     @Operation(summary = "Creating a player",
             description = "Allow you create a player")
     @PostMapping("/create")
@@ -56,7 +50,7 @@ public class PlayerController {
     @GetMapping
     public ResponseEntity<List<PlayerDtoWithTeam>> readAllPlayers() {
         final List<PlayerDtoWithTeam> players = playerService.readAll();
-        return handleResponse(players, !players.isEmpty());
+        return Handler.handleResponse(players, !players.isEmpty());
     }
 
     @Operation(summary = "View a player by ID",
@@ -68,7 +62,7 @@ public class PlayerController {
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         final PlayerDto player = playerService.read(id);
-        return handleResponse(player, player != null);
+        return Handler.handleResponse(player, player != null);
     }
 
     @Operation(summary = "View all matches by age",
@@ -79,7 +73,7 @@ public class PlayerController {
             @Parameter(description = "Value of age")
             @RequestParam(value = "age") final Integer age) {
         final List<PlayerDto> players = playerService.getPlayersByAge(age);
-        return handleResponse(players, !players.isEmpty());
+        return Handler.handleResponse(players, !players.isEmpty());
     }
 
     @Operation(summary = "Сhange player data",
@@ -91,7 +85,7 @@ public class PlayerController {
             @Parameter(description = "New data")
             @Valid @RequestBody final Player player)
             throws ResourcesNotFoundException {
-        return handleResponse(null, playerService.update(player, id));
+        return Handler.handleResponse(null, playerService.update(player, id));
     }
 
     @Operation(summary = "Delete player",
@@ -101,7 +95,7 @@ public class PlayerController {
             @Parameter(description = "ID of the player to be delete")
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
-        return handleResponse(null, playerService.delete(id));
+        return Handler.handleResponse(null, playerService.delete(id));
     }
 
     @Operation(summary = "Bulk create players",

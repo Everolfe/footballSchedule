@@ -36,11 +36,6 @@ public class MatchController {
 
     private final MatchService matchService;
 
-    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition) {
-        return condition
-                ? ResponseEntity.ok(body)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
 
     @Operation(summary = "Creating a match",
             description = "Allow you create a match")
@@ -58,7 +53,7 @@ public class MatchController {
     @GetMapping
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readAllMatches() {
         final List<MatchDtoWithArenaAndTeams> matches = matchService.readAll();
-        return handleResponse(matches, !matches.isEmpty());
+        return Handler.handleResponse(matches, !matches.isEmpty());
     }
 
     @Operation(summary = "View all matches by tournament name",
@@ -70,7 +65,7 @@ public class MatchController {
             @RequestParam(value = "tournament") final String tournamentName) {
         final List<MatchDtoWithArenaAndTeams> matches =
                 matchService.getMatchesByTournamentName(tournamentName);
-        return handleResponse(matches, !matches.isEmpty());
+        return Handler.handleResponse(matches, !matches.isEmpty());
     }
 
     @Operation(summary = "View all matches by date and time",
@@ -99,7 +94,7 @@ public class MatchController {
             @Parameter(description = "ID of the match to be found ")
             @PathVariable final Integer id) throws ResourcesNotFoundException {
         final MatchDtoWithArenaAndTeams match = matchService.read(id);
-        return handleResponse(match, match != null);
+        return Handler.handleResponse(match, match != null);
     }
 
     @Operation(summary = "Сhange match data",
@@ -111,7 +106,7 @@ public class MatchController {
             @Parameter(description = "New data")
             @Valid @RequestBody final Match match)
             throws ResourcesNotFoundException {
-        return handleResponse(null, matchService.update(match, id));
+        return Handler.handleResponse(null, matchService.update(match, id));
     }
 
     @Operation(summary = "Set new arena to match",
@@ -123,7 +118,7 @@ public class MatchController {
             @Parameter(description = "ID of new arena")
             @RequestParam(value = "newArenaId") final Integer newArenaId)
             throws ResourcesNotFoundException {
-        return handleResponse(null, matchService.setNewArena(matchId, newArenaId));
+        return Handler.handleResponse(null, matchService.setNewArena(matchId, newArenaId));
     }
 
     @Operation(summary = "Set new date to match",
@@ -135,7 +130,7 @@ public class MatchController {
             @Parameter(description = "Value of new date")
             @RequestParam(value = "time") final LocalDateTime time)
             throws ResourcesNotFoundException {
-        return handleResponse(null, matchService.updateMatchTime(matchId, time));
+        return Handler.handleResponse(null, matchService.updateMatchTime(matchId, time));
     }
 
     @Operation(summary = "Delete match",
@@ -145,7 +140,7 @@ public class MatchController {
             @Parameter(description = "ID of the match to be delete")
             @PathVariable final Integer id)
            throws ResourcesNotFoundException {
-        return handleResponse(null, matchService.delete(id));
+        return Handler.handleResponse(null, matchService.delete(id));
     }
 
     @Operation(summary = "Add team to match",
@@ -157,7 +152,7 @@ public class MatchController {
             @Parameter(description = "ID of added team")
             @RequestParam(value = "teamId") final Integer teamId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null, matchService.addTeamToMatch(matchId, teamId));
+        return Handler.handleResponse(null, matchService.addTeamToMatch(matchId, teamId));
     }
 
     @Operation(summary = "Remove team from match",
@@ -169,7 +164,7 @@ public class MatchController {
             @Parameter(description = "ID of removing team")
             @RequestParam(value = "teamId") final Integer teamId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null, matchService.removeTeamFromMatch(matchId, teamId));
+        return Handler.handleResponse(null, matchService.removeTeamFromMatch(matchId, teamId));
     }
 
     @Operation(summary = "Bulk create matches",
@@ -178,9 +173,7 @@ public class MatchController {
     public ResponseEntity<Void> createMatchesBulk(
             @Parameter(description = "List of matches to create")
             @RequestBody final List<Match> matches) {
-
         matchService.createBulk(matches);
-
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

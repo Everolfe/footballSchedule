@@ -35,12 +35,6 @@ public class TeamController {
 
     private final TeamService teamService;
 
-    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition) {
-        return condition
-                ? ResponseEntity.ok(body)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-
     @Operation(summary = "Creating a team",
             description = "Allow you create a team")
     @PostMapping("/create")
@@ -57,7 +51,7 @@ public class TeamController {
     @GetMapping
     public ResponseEntity<List<TeamDtoWithMatchesAndPlayers>> readAllTeams() {
         final List<TeamDtoWithMatchesAndPlayers> teams = teamService.readAll();
-        return handleResponse(teams, !teams.isEmpty());
+        return Handler.handleResponse(teams, !teams.isEmpty());
     }
 
     @Operation(summary = "View all matches by country",
@@ -68,7 +62,7 @@ public class TeamController {
             @Parameter(description = "Country")
             @RequestParam(value = "country") final String country) {
         final List<TeamDtoWithPlayers> teams = teamService.getTeamsByCountry(country);
-        return handleResponse(teams, !teams.isEmpty());
+        return Handler.handleResponse(teams, !teams.isEmpty());
     }
 
     @Operation(summary = "View a team by ID",
@@ -79,7 +73,7 @@ public class TeamController {
             @Parameter(description = "ID of the team to be found ")
             @PathVariable(name = "id") final Integer id) {
         final TeamDtoWithPlayers team = teamService.read(id);
-        return handleResponse(team,  team != null);
+        return Handler.handleResponse(team,  team != null);
     }
 
     @Operation(summary = "Сhange team data",
@@ -90,7 +84,7 @@ public class TeamController {
             @PathVariable(name = "id") final Integer id,
             @Parameter(description = "New data")
             @Valid @RequestBody final Team team) {
-        return handleResponse(null, teamService.update(team, id));
+        return Handler.handleResponse(null, teamService.update(team, id));
     }
 
     @Operation(summary = "Remove player from team",
@@ -102,7 +96,7 @@ public class TeamController {
             @Parameter(description = "ID of removing player")
             @RequestParam(value = "playerId") final Integer playerId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null, teamService.deletePlayerFromTeam(teamId, playerId));
+        return Handler.handleResponse(null, teamService.deletePlayerFromTeam(teamId, playerId));
     }
 
     @Operation(summary = "Remove match from team",
@@ -114,7 +108,7 @@ public class TeamController {
             @Parameter(description = "ID of removing match")
             @RequestParam(value = "matchId") final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null, teamService.deleteMatchFromTeam(teamId, matchId));
+        return Handler.handleResponse(null, teamService.deleteMatchFromTeam(teamId, matchId));
     }
 
     @Operation(summary = "Add match to team",
@@ -126,7 +120,7 @@ public class TeamController {
             @Parameter(description = "ID of added match")
             @RequestParam(value = "matchId") final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null, teamService.addMatchToTeam(teamId, matchId));
+        return Handler.handleResponse(null, teamService.addMatchToTeam(teamId, matchId));
     }
 
     @Operation(summary = "Add player to team",
@@ -138,7 +132,7 @@ public class TeamController {
             @Parameter(description = "ID of added player")
             @RequestParam(value = "playerId") final Integer matchId)
             throws ResourcesNotFoundException, BadRequestException {
-        return handleResponse(null, teamService.addPlayerToTeam(teamId, matchId));
+        return Handler.handleResponse(null, teamService.addPlayerToTeam(teamId, matchId));
     }
 
     @Operation(summary = "Delete team",
@@ -147,7 +141,7 @@ public class TeamController {
     public ResponseEntity<Void> deleteTeam(
             @Parameter(description = "ID of the team to be delete")
             @PathVariable(name = "id") final Integer id) {
-        return handleResponse(null, teamService.delete(id));
+        return Handler.handleResponse(null, teamService.delete(id));
     }
 
     @Operation(summary = "Bulk create teams",

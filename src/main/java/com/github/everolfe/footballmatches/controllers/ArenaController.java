@@ -33,11 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ArenaController {
     private final ArenaService arenaService;
 
-    private <T> ResponseEntity<T> handleResponse(final T body, final boolean condition) {
-        return condition
-                ? ResponseEntity.ok(body)
-                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
 
     @Operation(summary = "Creating an arena",
             description = "Allow you create an arena")
@@ -55,7 +50,7 @@ public class ArenaController {
     @GetMapping
     public ResponseEntity<List<ArenaDtoWithMatches>> readAllArenas() {
         final List<ArenaDtoWithMatches> arenas = arenaService.readAll();
-        return handleResponse(arenas, !arenas.isEmpty());
+        return Handler.handleResponse(arenas, !arenas.isEmpty());
     }
 
     @Operation(summary = "View all arenas by capacity",
@@ -68,7 +63,7 @@ public class ArenaController {
             @Parameter(description = "Max value of capacity ")
             @RequestParam(required = false) Integer maxCapacity) {
         final List<ArenaDto> arenas = arenaService.getArenasByCapacity(minCapacity, maxCapacity);
-        return handleResponse(arenas, !arenas.isEmpty());
+        return Handler.handleResponse(arenas, !arenas.isEmpty());
     }
 
     @Operation(summary = "View an arena by ID",
@@ -80,7 +75,7 @@ public class ArenaController {
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         final ArenaDto arena = arenaService.read(id);
-        return handleResponse(arena, arena != null);
+        return Handler.handleResponse(arena, arena != null);
     }
 
     @Operation(summary = "Сhange arena data",
@@ -92,7 +87,7 @@ public class ArenaController {
             @Parameter(description = "New data")
             @Valid @RequestBody final Arena arena)
             throws ResourcesNotFoundException {
-        return handleResponse(null, arenaService.update(arena, id));
+        return Handler.handleResponse(null, arenaService.update(arena, id));
     }
 
     @Operation(summary = "Delete arena",
@@ -102,7 +97,7 @@ public class ArenaController {
             @Parameter(description = "ID of the arena to be delete")
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
-        return handleResponse(null, arenaService.delete(id));
+        return Handler.handleResponse(null, arenaService.delete(id));
     }
 
     @Operation(summary = "Bulk create arenas",
