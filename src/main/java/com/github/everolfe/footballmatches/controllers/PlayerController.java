@@ -45,7 +45,7 @@ public class PlayerController {
     @PostMapping("/create")
     public ResponseEntity<Void> createPlayer(
             @Parameter(description = "JSON object of new player ")
-            @Valid @RequestBody Player player) {
+            @Valid @RequestBody final Player player) {
         playerService.create(player);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -65,7 +65,7 @@ public class PlayerController {
     @GetMapping("/{id}")
     public ResponseEntity<PlayerDto> readPlayerById(
             @Parameter(description = "ID of the player to be found ")
-            @PathVariable(name = "id") Integer id)
+            @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         final PlayerDto player = playerService.read(id);
         return handleResponse(player, player != null);
@@ -77,7 +77,7 @@ public class PlayerController {
     @GetMapping("/search")
     public ResponseEntity<List<PlayerDto>> readPlayersByAge(
             @Parameter(description = "Value of age")
-            @RequestParam(value = "age") Integer age) {
+            @RequestParam(value = "age") final Integer age) {
         final List<PlayerDto> players = playerService.getPlayersByAge(age);
         return handleResponse(players, !players.isEmpty());
     }
@@ -87,9 +87,9 @@ public class PlayerController {
     @PutMapping("/update/{id}")
     public ResponseEntity<Void> updatePlayer(
             @Parameter(description = "ID of the player to be update data")
-            @PathVariable(name = "id") Integer id,
+            @PathVariable(name = "id") final Integer id,
             @Parameter(description = "New data")
-            @Valid @RequestBody Player player)
+            @Valid @RequestBody final Player player)
             throws ResourcesNotFoundException {
         return handleResponse(null, playerService.update(player, id));
     }
@@ -99,7 +99,7 @@ public class PlayerController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlayer(
             @Parameter(description = "ID of the player to be delete")
-            @PathVariable(name = "id") Integer id)
+            @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         return handleResponse(null, playerService.delete(id));
     }
@@ -109,7 +109,7 @@ public class PlayerController {
     @PostMapping("/bulk-create")
     public ResponseEntity<Void> createPlayersBulk(
             @Parameter(description = "List of players to create")
-            @RequestBody List<Player> players) {
+            @RequestBody final List<Player> players) {
 
         playerService.createBulk(players);
 

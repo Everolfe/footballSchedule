@@ -30,7 +30,7 @@ public class LogController {
     public ResponseEntity<String> startLogTask(@Parameter(
             description = "Log date",
             example = "2025-02-20",
-            required = true) @RequestParam String date) {
+            required = true) @RequestParam String date) throws IOException {
         String taskId = logService.startAsyncLogGeneration(date);
         return ResponseEntity.ok(taskId);
     }

@@ -5,7 +5,6 @@ import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Match;
-import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.service.MatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,7 +47,7 @@ public class MatchController {
     @PostMapping("/create")
     public ResponseEntity<Void> createMatch(
             @Parameter(description = "JSON object of new match ")
-            @Valid @RequestBody Match match) {
+            @Valid @RequestBody final Match match) {
         matchService.create(match);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -68,7 +67,7 @@ public class MatchController {
     @GetMapping("/search")
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByTournament(
             @Parameter(description = "Tournament name")
-            @RequestParam(value = "tournament") String tournamentName) {
+            @RequestParam(value = "tournament") final String tournamentName) {
         final List<MatchDtoWithArenaAndTeams> matches =
                 matchService.getMatchesByTournamentName(tournamentName);
         return handleResponse(matches, !matches.isEmpty());
@@ -81,10 +80,12 @@ public class MatchController {
     public ResponseEntity<List<MatchDtoWithArenaAndTeams>> readMatchesByDateTime(
             @Parameter(description = "Min value of date")
             @RequestParam(value = "startDate", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            final LocalDateTime startDate,
             @Parameter(description = "Max value of date")
             @RequestParam(value = "endDate", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            final LocalDateTime endDate) {
         List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList =
                 matchService.findMatchesByDates(startDate, endDate);
         return ResponseEntity.status(HttpStatus.OK).body(matchDtoWithArenaAndTeamsList);
@@ -108,7 +109,7 @@ public class MatchController {
             @Parameter(description = "ID of the match to be update data")
             @PathVariable final Integer id,
             @Parameter(description = "New data")
-            @Valid @RequestBody Match match)
+            @Valid @RequestBody final Match match)
             throws ResourcesNotFoundException {
         return handleResponse(null, matchService.update(match, id));
     }
@@ -176,7 +177,7 @@ public class MatchController {
     @PostMapping("/bulk-create")
     public ResponseEntity<Void> createMatchesBulk(
             @Parameter(description = "List of matches to create")
-            @RequestBody List<Match> matches) {
+            @RequestBody final List<Match> matches) {
 
         matchService.createBulk(matches);
 

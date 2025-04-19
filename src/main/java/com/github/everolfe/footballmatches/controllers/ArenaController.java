@@ -90,7 +90,7 @@ public class ArenaController {
             @Parameter(description = "ID of the arena to be update data")
             @PathVariable(name = "id") final Integer id,
             @Parameter(description = "New data")
-            @Valid @RequestBody Arena arena)
+            @Valid @RequestBody final Arena arena)
             throws ResourcesNotFoundException {
         return handleResponse(null, arenaService.update(arena, id));
     }
@@ -110,7 +110,7 @@ public class ArenaController {
     @PostMapping("/bulk-create")
     public ResponseEntity<Void> createArenasBulk(
             @Parameter(description = "List of arenas to create")
-            @RequestBody List<Arena> arenas) {
+            @RequestBody final List<Arena> arenas) {
 
         arenaService.createBulk(arenas);
 

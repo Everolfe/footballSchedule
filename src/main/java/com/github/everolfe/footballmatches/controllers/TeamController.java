@@ -46,7 +46,7 @@ public class TeamController {
     @PostMapping("/create")
     public ResponseEntity<Void> createTeam(
             @Parameter(description = "JSON object of new team ")
-            @Valid @RequestBody Team team) {
+            @Valid @RequestBody final Team team) {
         teamService.create(team);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -66,7 +66,7 @@ public class TeamController {
     @GetMapping("/search")
     public ResponseEntity<List<TeamDtoWithPlayers>> readTeamsByCountry(
             @Parameter(description = "Country")
-            @RequestParam(value = "country") String country) {
+            @RequestParam(value = "country") final String country) {
         final List<TeamDtoWithPlayers> teams = teamService.getTeamsByCountry(country);
         return handleResponse(teams, !teams.isEmpty());
     }
@@ -77,7 +77,7 @@ public class TeamController {
     @GetMapping("/{id}")
     public ResponseEntity<TeamDtoWithPlayers> readTeamById(
             @Parameter(description = "ID of the team to be found ")
-            @PathVariable(name = "id") Integer id) {
+            @PathVariable(name = "id") final Integer id) {
         final TeamDtoWithPlayers team = teamService.read(id);
         return handleResponse(team,  team != null);
     }
@@ -87,9 +87,9 @@ public class TeamController {
     @PutMapping("/update/{id}")
     public ResponseEntity<Void> updateTeam(
             @Parameter(description = "ID of the team to be update data")
-            @PathVariable(name = "id") Integer id,
+            @PathVariable(name = "id") final Integer id,
             @Parameter(description = "New data")
-            @Valid @RequestBody Team team) {
+            @Valid @RequestBody final Team team) {
         return handleResponse(null, teamService.update(team, id));
     }
 
@@ -146,7 +146,7 @@ public class TeamController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTeam(
             @Parameter(description = "ID of the team to be delete")
-            @PathVariable(name = "id") Integer id) {
+            @PathVariable(name = "id") final Integer id) {
         return handleResponse(null, teamService.delete(id));
     }
 
@@ -155,7 +155,7 @@ public class TeamController {
     @PostMapping("/bulk-create")
     public ResponseEntity<Void> createTeamsBulk(
             @Parameter(description = "List of teams to create")
-            @RequestBody List<Team> teams) {
+            @RequestBody final List<Team> teams) {
 
         teamService.createBulk(teams);
 
