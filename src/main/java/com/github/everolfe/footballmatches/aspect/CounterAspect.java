@@ -70,14 +70,22 @@ public class CounterAspect {
     }
 
     private String resolveHttpMethod(Method method) {
-        if (method.isAnnotationPresent(GetMapping.class)) return "GET";
-        if (method.isAnnotationPresent(PostMapping.class)) return "POST";
-        if (method.isAnnotationPresent(PutMapping.class)) return "PUT";
-        if (method.isAnnotationPresent(DeleteMapping.class)) return "DELETE";
+        if (method.isAnnotationPresent(GetMapping.class)) {
+            return "GET";
+        }
+        if (method.isAnnotationPresent(PostMapping.class)) {
+            return "POST";
+        }
+        if (method.isAnnotationPresent(PutMapping.class)) {
+            return "PUT";
+        }
+        if (method.isAnnotationPresent(DeleteMapping.class)) {
+            return "DELETE";
+        }
         if (method.isAnnotationPresent(RequestMapping.class)) {
             RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
-            return requestMapping.method().length > 0 ?
-                    requestMapping.method()[0].name() :
+            return requestMapping.method().length > 0
+                    ? requestMapping.method()[0].name() :
                     DEFAULT_HTTP_METHOD;
         }
         return DEFAULT_HTTP_METHOD;

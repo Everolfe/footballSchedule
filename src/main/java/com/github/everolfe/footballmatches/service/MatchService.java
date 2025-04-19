@@ -118,7 +118,8 @@ public class MatchService  {
             cache.remove(CacheConstants.getMatchCacheKey(matchId));
             return true;
         } else {
-            throw new ResourcesNotFoundException(ExceptionMessages.getMatchNotExistMessage(matchId));
+            throw new ResourcesNotFoundException(
+                    ExceptionMessages.getMatchNotExistMessage(matchId));
         }
     }
 
