@@ -6,6 +6,8 @@ import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.service.ArenaService;
+import com.github.everolfe.footballmatches.swagger.ArenaDocumentation;
+import com.github.everolfe.footballmatches.swagger.ArenaDocumentation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,27 +27,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
-@Tag(name = "ArenaController",
-    description = "You can edit and view information about arenas")
+@Tag(name = ArenaDocumentation.TAG_NAME,
+    description = ArenaDocumentation.TAG_DESCRIPTION)
 @RestController
 @RequestMapping("/arenas")
 @AllArgsConstructor
 public class ArenaController {
     private final ArenaService arenaService;
+    private final String NEW_DATA = "New Data";
 
-
-    @Operation(summary = "Creating an arena",
-            description = "Allow you create an arena")
+    @Operation(summary = Create.SUMMARY,
+            description = Create.DESCRIPTION)
     @PostMapping("/create")
     public ResponseEntity<Void> createArena(
-            @Parameter(description = "JSON object of new arena ")
+            @Parameter(description = ArenaDocumentation.ARENA_JSON_DESCRIPTION)
             @Valid @RequestBody final Arena arena) {
         arenaService.create(arena);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "View all arenas",
-            description = "Allow you to view all arenas")
+    @Operation(summary = GetAll.SUMMARY,
+            description = GetAll.DESCRIPTION)
     @CounterAnnotation
     @GetMapping
     public ResponseEntity<List<ArenaDtoWithMatches>> readAllArenas() {
@@ -53,58 +55,58 @@ public class ArenaController {
         return Handler.handleResponse(arenas, !arenas.isEmpty());
     }
 
-    @Operation(summary = "View all arenas by capacity",
-            description = "Allow you to view arenas with a given capacity")
+    @Operation(summary = GetByCapacity.SUMMARY,
+            description = GetByCapacity.DESCRIPTION)
     @CounterAnnotation
     @GetMapping("/search")
     public ResponseEntity<List<ArenaDto>> readArenasByCapacity(
-            @Parameter(description = "Min value of capacity ")
+            @Parameter(description = ArenaDocumentation.MIN_CAPACITY_DESCRIPTION)
             @RequestParam(required = false) Integer minCapacity,
-            @Parameter(description = "Max value of capacity ")
+            @Parameter(description = ArenaDocumentation.MAX_CAPACITY_DESCRIPTION)
             @RequestParam(required = false) Integer maxCapacity) {
         final List<ArenaDto> arenas = arenaService.getArenasByCapacity(minCapacity, maxCapacity);
         return Handler.handleResponse(arenas, !arenas.isEmpty());
     }
 
-    @Operation(summary = "View an arena by ID",
-            description = "Allow you to view an arena with a given ID")
+    @Operation(summary = GetById.SUMMARY,
+            description = GetById.DESCRIPTION)
     @CounterAnnotation
     @GetMapping("/{id}")
     public ResponseEntity<ArenaDto> readArenaById(
-            @Parameter(description = "ID of the arena to be found ")
+            @Parameter(description = ArenaDocumentation.ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         final ArenaDto arena = arenaService.read(id);
         return Handler.handleResponse(arena, arena != null);
     }
 
-    @Operation(summary = "Сhange arena data",
-            description = "Allow you to change arena data")
+    @Operation(summary = Update.SUMMARY,
+            description = Update.DESCRIPTION)
     @PutMapping("/update/{id}")
     public ResponseEntity<Void> updateArena(
-            @Parameter(description = "ID of the arena to be update data")
+            @Parameter(description = ArenaDocumentation.ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id,
-            @Parameter(description = "New data")
+            @Parameter(description = NEW_DATA)
             @Valid @RequestBody final Arena arena)
             throws ResourcesNotFoundException {
         return Handler.handleResponse(null, arenaService.update(arena, id));
     }
 
-    @Operation(summary = "Delete arena",
-            description = "Allow you to delete arena by it ID")
+    @Operation(summary = Delete.SUMMARY,
+            description = Delete.DESCRIPTION)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteArena(
-            @Parameter(description = "ID of the arena to be delete")
+            @Parameter(description = ArenaDocumentation.ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id)
             throws ResourcesNotFoundException {
         return Handler.handleResponse(null, arenaService.delete(id));
     }
 
-    @Operation(summary = "Bulk create arenas",
-            description = "Allow you to create multiple arenas at once")
+    @Operation(summary = BulkCreate.SUMMARY,
+            description = BulkCreate.DESCRIPTION)
     @PostMapping("/bulk-create")
     public ResponseEntity<Void> createArenasBulk(
-            @Parameter(description = "List of arenas to create")
+            @Parameter(description = ArenaDocumentation.ARENAS_LIST_DESCRIPTION)
             @RequestBody final List<Arena> arenas) {
 
         arenaService.createBulk(arenas);
