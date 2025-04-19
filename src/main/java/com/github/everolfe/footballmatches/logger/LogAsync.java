@@ -1,5 +1,6 @@
 package com.github.everolfe.footballmatches.logger;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,52 +22,48 @@ public class LogAsync {
     @Async
     public void generateLogFileAsync(
             final String taskId,
-            Map<String, String> taskStatus, Map<String, Path> taskFiles,
-            final String date) {
-        try {
-            Thread.sleep(10000); // имитация долгой работы
-            Path logFilePath = Paths.get(LOG_FILE_PATH);
-            List<String> filteredLines = List.of();
+            Map<String, String> taskStatus,
+            Map<String, Path> taskFiles,
+            final String date) throws IOException {
+        try{
+        Thread.sleep(10000);
+        Path logFilePath = Paths.get(LOG_FILE_PATH);
+        Path datedFilePath = logFilePath.getParent().resolve("logs_" + date + ".log");
 
-            if (Files.exists(logFilePath)) {
-                try (Stream<String> lines = Files.lines(logFilePath)) {
-                    filteredLines = lines
-                            .filter(line -> line.contains(date))
-                            .toList();
-                }
-            }
-
-            if (filteredLines.isEmpty()) {
-                taskStatus.put(taskId, "COMPLETED_NO_DATA");
-                return;
-            }
-
-            Path outputDir = logFilePath.getParent();
-            if (!Files.exists(outputDir)) {
-                Files.createDirectories(outputDir);
-            }
-
-            String fileName = "filtered_logs_" + date + "_" + taskId + ".log";
-            Path outputFile = outputDir.resolve(fileName);
-
-            Files.write(
-                    outputFile,
-                    filteredLines,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING,
-                    StandardOpenOption.WRITE
-            );
-
-            // Обновляем статус задачи
-            taskFiles.put(taskId, outputFile);
+        // Если файл для этой даты уже существует - возвращаем его
+        if (Files.exists(datedFilePath)) {
+            taskFiles.put(taskId, datedFilePath);
             taskStatus.put(taskId, "COMPLETED");
+            return;
+        }
 
-        } catch (InterruptedException e) {
+        // Иначе фильтруем и создаем файл
+        List<String> filteredLines = filterLogsByDate(date);
+
+        if (filteredLines.isEmpty()) {
+            taskStatus.put(taskId, "COMPLETED_NO_DATA");
+            return;
+        }
+
+        Files.write(datedFilePath, filteredLines, StandardOpenOption.CREATE_NEW);
+        taskFiles.put(taskId, datedFilePath);
+        taskStatus.put(taskId, "COMPLETED");
+        }catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             taskStatus.put(taskId, "FAILED: " + e.getMessage());
         } catch (Exception e) {
             taskStatus.put(taskId, "FAILED: " + e.getMessage());
         }
+    }
+    private List<String> filterLogsByDate(String date) throws IOException {
+        Path logFilePath = Paths.get(LOG_FILE_PATH);
+        if (!Files.exists(logFilePath)) {
+            return List.of();
+        }
 
+        try (Stream<String> lines = Files.lines(logFilePath)) {
+            return lines.filter(line -> line.contains(date))
+                    .toList();
+        }
     }
 }

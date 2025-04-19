@@ -57,7 +57,7 @@ public class LogService {
     }
 
     @AspectAnnotation
-    public String startAsyncLogGeneration(final String date) {
+    public String startAsyncLogGeneration(final String date) throws IOException {
         if (!isValidDate(date)) {
             throw new IllegalArgumentException("Invalid date format");
         }

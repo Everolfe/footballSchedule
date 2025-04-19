@@ -7,7 +7,7 @@ import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDto;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
-import com.github.everolfe.footballmatches.exceptions.NotExistMessage;
+import com.github.everolfe.footballmatches.exceptions.ExceptionMessages;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
 import com.github.everolfe.footballmatches.model.Arena;
@@ -68,7 +68,7 @@ public class ArenaService {
         } else {
             ArenaDto arenaDto =  ConvertDtoClasses.convertToArenaDto(arenaRepository.findById(id)
                             .orElseThrow(() -> new ResourcesNotFoundException(
-                                    NotExistMessage.getArenaNotExistMessage(id))));
+                                    ExceptionMessages.getArenaNotExistMessage(id))));
             cache.put(CacheConstants.getArenaCacheKey(id), arenaDto);
             return arenaDto;
         }
@@ -87,7 +87,7 @@ public class ArenaService {
                     return true;
                 })
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getArenaNotExistMessage(id)));
+                        ExceptionMessages.getArenaNotExistMessage(id)));
     }
 
     @AspectAnnotation
@@ -108,7 +108,7 @@ public class ArenaService {
             cache.remove(CacheConstants.getArenaCacheKey(id));
             return true;
         } else {
-            throw new ResourcesNotFoundException(NotExistMessage.getArenaNotExistMessage(id));
+            throw new ResourcesNotFoundException(ExceptionMessages.getArenaNotExistMessage(id));
         }
     }
 

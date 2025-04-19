@@ -7,7 +7,7 @@ import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithMatchesAndPlayers;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
-import com.github.everolfe.footballmatches.exceptions.NotExistMessage;
+import com.github.everolfe.footballmatches.exceptions.ExceptionMessages;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
 import com.github.everolfe.footballmatches.model.Match;
@@ -73,7 +73,7 @@ public class TeamService {
             TeamDtoWithPlayers teamDtoWithPlayers = ConvertDtoClasses
                     .convertToTeamDtoWithPlayers(teamRepository.findById(id)
                             .orElseThrow(() -> new ResourcesNotFoundException(
-                                    NotExistMessage.getTeamNotExistMessage(id))));
+                                    ExceptionMessages.getTeamNotExistMessage(id))));
             cache.put(CacheConstants.getTeamCacheKey(id), teamDtoWithPlayers);
             return teamDtoWithPlayers;
         }
@@ -90,7 +90,7 @@ public class TeamService {
                     return true;
                 })
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getTeamNotExistMessage(id)));
+                        ExceptionMessages.getTeamNotExistMessage(id)));
     }
 
     @AspectAnnotation
@@ -98,7 +98,7 @@ public class TeamService {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getTeamNotExistMessage(id)));
+                        ExceptionMessages.getTeamNotExistMessage(id)));
         List<Player> players = team.getPlayers();
         if (players != null) {
             for (Player player : players) {
@@ -130,10 +130,10 @@ public class TeamService {
         ValidationUtils.validateNonNegative(ID_FIELD, playerId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getTeamNotExistMessage(teamId)));
+                        ExceptionMessages.getTeamNotExistMessage(teamId)));
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getPlayerNotExistMessage(playerId)));
+                        ExceptionMessages.getPlayerNotExistMessage(playerId)));
         if (player.getTeam() != null && player.getTeam().equals(team)) {
             throw new BadRequestException("Player already exists in this team");
         }
@@ -157,10 +157,10 @@ public class TeamService {
         ValidationUtils.validateNonNegative(ID_FIELD, playerId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getTeamNotExistMessage(teamId)));
+                        ExceptionMessages.getTeamNotExistMessage(teamId)));
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getPlayerNotExistMessage(playerId)));
+                        ExceptionMessages.getPlayerNotExistMessage(playerId)));
         if (!team.getPlayers().contains(player)) {
             throw new BadRequestException("Player does not belong to the team");
         }
@@ -180,10 +180,10 @@ public class TeamService {
         ValidationUtils.validateNonNegative(ID_FIELD, matchId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getTeamNotExistMessage(teamId)));
+                        ExceptionMessages.getTeamNotExistMessage(teamId)));
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getMatchNotExistMessage(matchId)));
+                        ExceptionMessages.getMatchNotExistMessage(matchId)));
         if (match.getTeamList().isEmpty()) {
             List<Team> teamList = new ArrayList<>();
             teamList.add(team);
@@ -210,10 +210,10 @@ public class TeamService {
         ValidationUtils.validateNonNegative(ID_FIELD, matchId);
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getTeamNotExistMessage(teamId)));
+                        ExceptionMessages.getTeamNotExistMessage(teamId)));
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getMatchNotExistMessage(matchId)));
+                        ExceptionMessages.getMatchNotExistMessage(matchId)));
         if (!match.getTeamList().contains(team)) {
             throw new IllegalArgumentException("Team does not participate in the match");
         }

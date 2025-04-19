@@ -6,7 +6,7 @@ import com.github.everolfe.footballmatches.cache.CacheConstants;
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
-import com.github.everolfe.footballmatches.exceptions.NotExistMessage;
+import com.github.everolfe.footballmatches.exceptions.ExceptionMessages;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
 import com.github.everolfe.footballmatches.model.Arena;
@@ -74,7 +74,7 @@ public class MatchService  {
             MatchDtoWithArenaAndTeams matchDtoWithArenaAndTeams = ConvertDtoClasses
                     .convertToMatchDtoWithArenaAndTeams(matchRepository.findById(id)
                             .orElseThrow(() -> new ResourcesNotFoundException(
-                                    NotExistMessage.getMatchNotExistMessage(id))));
+                                    ExceptionMessages.getMatchNotExistMessage(id))));
             cache.put(CacheConstants.getMatchCacheKey(id), matchDtoWithArenaAndTeams);
             return matchDtoWithArenaAndTeams;
         }
@@ -92,7 +92,7 @@ public class MatchService  {
             cache.put(CacheConstants.getMatchCacheKey(id), match);
             return true;
         } else {
-            throw new ResourcesNotFoundException(NotExistMessage.getMatchNotExistMessage(id));
+            throw new ResourcesNotFoundException(ExceptionMessages.getMatchNotExistMessage(id));
         }
     }
 
@@ -118,7 +118,7 @@ public class MatchService  {
             cache.remove(CacheConstants.getMatchCacheKey(matchId));
             return true;
         } else {
-            throw new ResourcesNotFoundException(NotExistMessage.getMatchNotExistMessage(matchId));
+            throw new ResourcesNotFoundException(ExceptionMessages.getMatchNotExistMessage(matchId));
         }
     }
 
@@ -129,10 +129,10 @@ public class MatchService  {
         ValidationUtils.validateNonNegative(ID_FIELD, teamId);
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getMatchNotExistMessage(matchId)));
+                        ExceptionMessages.getMatchNotExistMessage(matchId)));
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getTeamNotExistMessage(teamId)));
+                        ExceptionMessages.getTeamNotExistMessage(teamId)));
         if (!match.getTeamList().contains(team)) {
             team.getMatches().add(match);
             teamRepository.save(team);
@@ -153,10 +153,10 @@ public class MatchService  {
         ValidationUtils.validateNonNegative(ID_FIELD, teamId);
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getMatchNotExistMessage(matchId)));
+                        ExceptionMessages.getMatchNotExistMessage(matchId)));
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getTeamNotExistMessage(teamId)));
+                        ExceptionMessages.getTeamNotExistMessage(teamId)));
         if (match.getTeamList().contains(team)) {
             team.getMatches().remove(match);
             teamRepository.save(team);
@@ -177,10 +177,10 @@ public class MatchService  {
         ValidationUtils.validateNonNegative(ID_FIELD, arenaId);
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getMatchNotExistMessage(matchId)));
+                        ExceptionMessages.getMatchNotExistMessage(matchId)));
         Arena newArena = arenaRepository.findById(arenaId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getArenaNotExistMessage(arenaId)));
+                        ExceptionMessages.getArenaNotExistMessage(arenaId)));
         newArena.getMatchList().add(match);
         arenaRepository.save(newArena);
         cache.put(CacheConstants.getArenaCacheKey(arenaId), newArena);
@@ -197,7 +197,7 @@ public class MatchService  {
         ValidationUtils.validateDateFormat(time.toString());
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getMatchNotExistMessage(matchId)));
+                        ExceptionMessages.getMatchNotExistMessage(matchId)));
         match.setDateTime(time);
         matchRepository.save(match);
         cache.put(CacheConstants.getMatchCacheKey(matchId), match);

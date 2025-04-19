@@ -7,7 +7,7 @@ import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.player.PlayerDto;
 import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
-import com.github.everolfe.footballmatches.exceptions.NotExistMessage;
+import com.github.everolfe.footballmatches.exceptions.ExceptionMessages;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
 import com.github.everolfe.footballmatches.model.Player;
@@ -67,7 +67,7 @@ public class PlayerService {
         } else {
             PlayerDto playerDto = ConvertDtoClasses.convertToPlayerDto(playerRepository.findById(id)
                             .orElseThrow(() -> new ResourcesNotFoundException(
-                                    NotExistMessage.getPlayerNotExistMessage(id))));
+                                    ExceptionMessages.getPlayerNotExistMessage(id))));
             cache.put(CacheConstants.getPlayerCacheKey(id), playerDto);
             return playerDto;
         }
@@ -84,7 +84,7 @@ public class PlayerService {
                     return true;
                 })
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getPlayerNotExistMessage(id)));
+                        ExceptionMessages.getPlayerNotExistMessage(id)));
     }
 
     @AspectAnnotation
@@ -92,7 +92,7 @@ public class PlayerService {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
-                        NotExistMessage.getPlayerNotExistMessage(id)));
+                        ExceptionMessages.getPlayerNotExistMessage(id)));
         Team team = player.getTeam();
         team.getPlayers().remove(player);
         teamRepository.save(team);
