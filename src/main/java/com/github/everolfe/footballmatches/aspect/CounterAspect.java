@@ -40,7 +40,7 @@ public class CounterAspect {
     @Before("annotatedWithCounter()")
     public void countRequest(JoinPoint joinPoint) {
         String endpointKey = resolveEndpointKey(joinPoint);
-        int count = requestCounter.incrementAndGet(endpointKey);
+        requestCounter.incrementAndGet(endpointKey);
     }
 
     private String resolveEndpointKey(JoinPoint joinPoint) {

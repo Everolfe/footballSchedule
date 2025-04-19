@@ -1,6 +1,7 @@
 package com.github.everolfe.footballmatches.counter;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +18,8 @@ public class RequestCounter {
         return counterMap.getOrDefault(key, new AtomicInteger(0)).get();
     }
 
-    public ConcurrentHashMap<String, Integer> getAllCounts() {
-        ConcurrentHashMap<String, Integer> result = new ConcurrentHashMap<>();
+    public ConcurrentMap<String, Integer> getAllCounts() {
+        ConcurrentMap<String, Integer> result = new ConcurrentHashMap<>();
         counterMap.forEach((key, value) -> result.put(key, value.get()));
         return result;
     }
