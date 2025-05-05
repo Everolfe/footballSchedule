@@ -35,7 +35,13 @@ public class PlayerService {
     private final TeamRepository teamRepository;
 
     @AspectAnnotation
-    public void create(Player player) {
+    public void create(Player player, final Integer teamId) {
+        if (teamId != null) {
+            Team team = teamRepository.findById(teamId)
+                    .orElseThrow(() -> new ResourcesNotFoundException(
+                            ExceptionMessages.getTeamNotExistMessage(teamId)));
+            player.setTeam(team);
+        }
         if (player == null) {
             throw new BadRequestException("Player is null");
         }
@@ -66,19 +72,30 @@ public class PlayerService {
             return (PlayerDto) cachedPlayer;
         } else {
             PlayerDto playerDto = ConvertDtoClasses.convertToPlayerDto(playerRepository.findById(id)
-                            .orElseThrow(() -> new ResourcesNotFoundException(
-                                    ExceptionMessages.getPlayerNotExistMessage(id))));
+                    .orElseThrow(() -> new ResourcesNotFoundException(
+                            ExceptionMessages.getPlayerNotExistMessage(id))));
             cache.put(CacheConstants.getPlayerCacheKey(id), playerDto);
             return playerDto;
         }
     }
 
     @AspectAnnotation
-    public boolean update(Player player, final Integer id) {
+    public boolean update(Player player, final Integer id, final Integer teamId) {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
+
         return playerRepository.findById(id)
                 .map(existingPlayer -> {
                     player.setId(id);
+
+                    if (teamId != null) {
+                        Team team = teamRepository.findById(teamId)
+                                .orElseThrow(() -> new ResourcesNotFoundException(
+                                        ExceptionMessages.getTeamNotExistMessage(teamId)));
+                        player.setTeam(team);
+                    } else {
+                        player.setTeam(null); // Убираем команду у игрока, если teamId не передан
+                    }
+
                     playerRepository.save(player);
                     cache.put(CacheConstants.getPlayerCacheKey(id), player);
                     return true;
@@ -87,16 +104,18 @@ public class PlayerService {
                         ExceptionMessages.getPlayerNotExistMessage(id)));
     }
 
+
     @AspectAnnotation
     public boolean delete(final Integer id) {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         ExceptionMessages.getPlayerNotExistMessage(id)));
-        Team team = player.getTeam();
-        team.getPlayers().remove(player);
-        teamRepository.save(team);
-        cache.put(CacheConstants.getTeamCacheKey(team.getId()), team);
+        if (player.getTeam() != null) {
+            Team team = player.getTeam();
+            teamRepository.save(team);
+            cache.put(CacheConstants.getTeamCacheKey(team.getId()), team);
+        }
         playerRepository.deleteById(id);
         cache.remove(CacheConstants.getPlayerCacheKey(player.getId()));
         return true;

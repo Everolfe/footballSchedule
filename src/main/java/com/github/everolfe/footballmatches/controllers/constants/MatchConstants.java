@@ -4,7 +4,8 @@ public final class MatchConstants {
     private MatchConstants() {}
 
     public static final String TAG_NAME = "Match Controller";
-    public static final String TAG_DESCRIPTION = "Provides operations for managing football matches";
+    public static final String TAG_DESCRIPTION =
+            "Provides operations for managing football matches";
 
     public static final String CREATE_SUMMARY = "Create a match";
     public static final String GET_ALL_SUMMARY = "Get all matches";
@@ -19,18 +20,29 @@ public final class MatchConstants {
     public static final String REMOVE_TEAM_SUMMARY = "Remove team from match";
     public static final String BULK_CREATE_SUMMARY = "Bulk create matches";
 
-    public static final String CREATE_DESCRIPTION = "Creates a new football match";
-    public static final String GET_ALL_DESCRIPTION = "Retrieves all matches with arena and teams information";
-    public static final String GET_BY_TOURNAMENT_DESCRIPTION = "Finds matches for specified tournament";
-    public static final String GET_BY_DATE_DESCRIPTION = "Finds matches within specified date range";
-    public static final String GET_BY_ID_DESCRIPTION = "Retrieves a specific match by its identifier";
-    public static final String UPDATE_DESCRIPTION = "Updates an existing match's information";
-    public static final String SET_ARENA_DESCRIPTION = "Updates the arena for a specific match";
-    public static final String SET_TIME_DESCRIPTION = "Updates the date/time for a specific match";
-    public static final String DELETE_DESCRIPTION = "Removes a match from the system";
+    public static final String CREATE_DESCRIPTION =
+            "Creates a new football match";
+    public static final String GET_ALL_DESCRIPTION =
+            "Retrieves all matches with arena and teams information";
+    public static final String GET_BY_TOURNAMENT_DESCRIPTION =
+            "Finds matches for specified tournament";
+    public static final String GET_BY_DATE_DESCRIPTION =
+            "Finds matches within specified date range";
+    public static final String GET_BY_ID_DESCRIPTION =
+            "Retrieves a specific match by its identifier";
+    public static final String UPDATE_DESCRIPTION =
+            "Updates an existing match's information";
+    public static final String SET_ARENA_DESCRIPTION =
+            "Updates the arena for a specific match";
+    public static final String SET_TIME_DESCRIPTION =
+            "Updates the date/time for a specific match";
+    public static final String DELETE_DESCRIPTION =
+            "Removes a match from the system";
     public static final String ADD_TEAM_DESCRIPTION = "Adds a team to an existing match";
-    public static final String REMOVE_TEAM_DESCRIPTION = "Removes a team from an existing match";
-    public static final String BULK_CREATE_DESCRIPTION = "Creates multiple matches in a single operation";
+    public static final String REMOVE_TEAM_DESCRIPTION =
+            "Removes a team from an existing match";
+    public static final String BULK_CREATE_DESCRIPTION =
+            "Creates multiple matches in a single operation";
 
     public static final String MATCH_JSON_DESCRIPTION = "JSON representation of match data";
     public static final String MATCH_ID_DESCRIPTION = "Unique identifier of the match";

@@ -17,6 +17,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,11 +29,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
+
 @Tag(name = TeamConstants.TAG_NAME,
         description = TeamConstants.TAG_DESCRIPTION)
 @RestController
 @RequestMapping(UrlConstants.TEAMS_URL)
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class TeamController {
 
     private final TeamService teamService;
@@ -145,9 +149,9 @@ public class TeamController {
             @Parameter(description = TeamConstants.TEAM_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id,
             @Parameter(description = TeamConstants.PLAYER_ID_DESCRIPTION)
-            @RequestParam(value = "playerId") final Integer matchId)
+            @RequestParam(value = "playerId") final Integer playerId)
             throws ResourcesNotFoundException, BadRequestException {
-        return Handler.handleResponse(null, teamService.addPlayerToTeam(id, matchId));
+        return Handler.handleResponse(null, teamService.addPlayerToTeam(id, playerId));
     }
 
 

@@ -16,6 +16,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(UrlConstants.PLAYERS_URL)
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class PlayerController {
 
     private final PlayerService playerService;
@@ -43,8 +45,11 @@ public class PlayerController {
     @PostMapping(UrlConstants.CREATE_URL)
     public ResponseEntity<Void> createPlayer(
             @Parameter(description = PlayerConstants.PLAYER_JSON_DESCRIPTION)
-            @Valid @RequestBody final Player player) {
-        playerService.create(player);
+            @Valid @RequestBody final Player player,
+            @Parameter(description = "TeamId")
+            @RequestParam(name = "teamId")
+            final Integer teamId) {
+        playerService.create(player, teamId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -76,9 +81,12 @@ public class PlayerController {
             @Parameter(description = PlayerConstants.PLAYER_ID_DESCRIPTION)
             @PathVariable(name = "id") final Integer id,
             @Parameter(description = NEW_DATA)
-            @Valid @RequestBody final Player player)
+            @Valid @RequestBody final Player player,
+            @Parameter(description = "TeamID")
+            @RequestParam(name = "teamId")
+            final Integer teamId)
             throws ResourcesNotFoundException {
-        return Handler.handleResponse(null, playerService.update(player, id));
+        return Handler.handleResponse(null, playerService.update(player, id, teamId));
     }
 
     @Operation(summary = PlayerConstants.DELETE_SUMMARY,

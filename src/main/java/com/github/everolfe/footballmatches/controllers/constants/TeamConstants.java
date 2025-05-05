@@ -21,16 +21,20 @@ public final class TeamConstants {
 
     // Operation descriptions
     public static final String CREATE_DESCRIPTION = "Creates a new football team";
-    public static final String GET_ALL_DESCRIPTION = "Retrieves all teams with matches and players information";
-    public static final String GET_BY_COUNTRY_DESCRIPTION = "Finds teams from specified country";
-    public static final String GET_BY_ID_DESCRIPTION = "Retrieves a specific team by its identifier";
+    public static final String GET_ALL_DESCRIPTION =
+            "Retrieves all teams with matches and players information";
+    public static final String GET_BY_COUNTRY_DESCRIPTION =
+            "Finds teams from specified country";
+    public static final String GET_BY_ID_DESCRIPTION =
+            "Retrieves a specific team by its identifier";
     public static final String UPDATE_DESCRIPTION = "Updates an existing team's information";
     public static final String ADD_PLAYER_DESCRIPTION = "Adds a player to an existing team";
     public static final String REMOVE_PLAYER_DESCRIPTION = "Removes a player from an existing team";
     public static final String ADD_MATCH_DESCRIPTION = "Adds a match to an existing team";
     public static final String REMOVE_MATCH_DESCRIPTION = "Removes a match from an existing team";
     public static final String DELETE_DESCRIPTION = "Removes a team from the system";
-    public static final String BULK_CREATE_DESCRIPTION = "Creates multiple teams in a single operation";
+    public static final String BULK_CREATE_DESCRIPTION =
+            "Creates multiple teams in a single operation";
 
     // Parameter descriptions
     public static final String TEAM_JSON_DESCRIPTION = "JSON representation of team data";

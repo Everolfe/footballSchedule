@@ -9,7 +9,7 @@ public final class UrlConstants {
     public static final String MATCHES_URL = "/matches";
     public static final String ARENAS_URL = "/arenas";
 
-    public static final String BULK_CREATE ="/bulk-create";
+    public static final String BULK_CREATE = "/bulk-create";
     public static final String CREATE_URL = "/create";
     public static final String SEARCH_URL = "/search";
     public static final String ID_URL = "/{id}";

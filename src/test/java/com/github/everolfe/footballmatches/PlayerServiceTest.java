@@ -67,12 +67,12 @@ class PlayerServiceTest {
 
     @Test
     void testCreatePlayer() {
-        playerService.create(testPlayer);
+        playerService.create(testPlayer,null);
 
         verify(playerRepository).save(testPlayer);
         verify(cache).put(CacheConstants.getPlayerCacheKey(testPlayer.getId()), testPlayerDto);
 
-        assertThrows(BadRequestException.class, () -> playerService.create(null));
+        assertThrows(BadRequestException.class, () -> playerService.create(null,null));
     }
 
     @Test
@@ -123,14 +123,15 @@ class PlayerServiceTest {
 
         when(playerRepository.findById(1)).thenReturn(Optional.of(testPlayer));
 
-        boolean result = playerService.update(updatedPlayer, 1);
+        boolean result = playerService.update(updatedPlayer, 1, updatedPlayer.getTeam().getId());
 
         assertTrue(result);
         verify(playerRepository).save(updatedPlayer);
         verify(cache).put(CacheConstants.getPlayerCacheKey(1), updatedPlayer);
 
         when(playerRepository.findById(1)).thenReturn(Optional.empty());
-        assertThrows(ResourcesNotFoundException.class, () -> playerService.update(testPlayer, 1));
+        assertThrows(ResourcesNotFoundException.class, () -> playerService.update(testPlayer
+                , 1, testPlayer.getTeam().getId()));
     }
 
     @Test

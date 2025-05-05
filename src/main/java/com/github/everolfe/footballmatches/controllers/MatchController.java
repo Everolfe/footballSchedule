@@ -4,6 +4,7 @@ import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.controllers.constants.MatchConstants;
 import com.github.everolfe.footballmatches.controllers.constants.UrlConstants;
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
+import com.github.everolfe.footballmatches.dto.match.MatchRequest;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Match;
@@ -11,6 +12,7 @@ import com.github.everolfe.footballmatches.service.MatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +20,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -34,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(UrlConstants.MATCHES_URL)
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class MatchController {
 
     private final MatchService matchService;
@@ -45,8 +49,20 @@ public class MatchController {
     @PostMapping(UrlConstants.CREATE_URL)
     public ResponseEntity<Void> createMatch(
             @Parameter(description = MatchConstants.MATCH_JSON_DESCRIPTION)
-            @Valid @RequestBody final Match match) {
-        matchService.create(match);
+            @Valid @RequestBody final MatchRequest match) {
+        Match newMatch = new Match();
+        newMatch.setDateTime(match.getDateTime());
+        newMatch.setTournamentName(match.getTournamentName());
+        matchService.create(newMatch);
+        if (match.getHomeTeamId() != null) {
+            matchService.addTeamToMatch(newMatch.getId(), match.getHomeTeamId());
+        }
+        if (match.getAwayTeamId() != null) {
+            matchService.addTeamToMatch(newMatch.getId(), match.getAwayTeamId());
+        }
+        if (match.getArenaId() != null) {
+            matchService.setNewArena(newMatch.getId(), match.getArenaId());
+        }
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -139,7 +155,7 @@ public class MatchController {
             description = MatchConstants.SET_TIME_DESCRIPTION)
     @PatchMapping(UrlConstants.SET_TIME_URL)
     public ResponseEntity<Void> updateMatchTime(
-            @Parameter(description =MatchConstants.MATCH_ID_DESCRIPTION)
+            @Parameter(description = MatchConstants.MATCH_ID_DESCRIPTION)
             @PathVariable final Integer id,
             @Parameter(description = MatchConstants.TIME_DESCRIPTION)
             @RequestParam(value = "time") final LocalDateTime time)

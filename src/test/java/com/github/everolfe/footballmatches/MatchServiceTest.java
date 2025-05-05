@@ -4,6 +4,7 @@ import com.github.everolfe.footballmatches.cache.Cache;
 import com.github.everolfe.footballmatches.cache.CacheConstants;
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
+import com.github.everolfe.footballmatches.dto.match.MatchRequest;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.model.Arena;
