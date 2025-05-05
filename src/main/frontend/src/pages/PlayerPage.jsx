@@ -176,7 +176,7 @@ export default function PlayerPage() {
         // Если поле name - это teamId, то мы превращаем его в целое число
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'teamId' ? value : value
+            [name] : value
         }));
     };
 
