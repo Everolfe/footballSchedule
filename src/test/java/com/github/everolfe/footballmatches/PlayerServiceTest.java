@@ -130,8 +130,10 @@ class PlayerServiceTest {
         verify(cache).put(CacheConstants.getPlayerCacheKey(1), updatedPlayer);
 
         when(playerRepository.findById(1)).thenReturn(Optional.empty());
+        Team team = testPlayer.getTeam();
+        int teamId = team.getId();
         assertThrows(ResourcesNotFoundException.class, () ->
-                playerService.update(testPlayer, 1, testPlayer.getTeam().getId())
+                playerService.update(testPlayer, 1, teamId)
         );
     }
 
