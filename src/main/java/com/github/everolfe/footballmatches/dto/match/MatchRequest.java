@@ -1,6 +1,5 @@
 package com.github.everolfe.footballmatches.dto.match;
 
-import com.github.everolfe.footballmatches.model.Match;
 import java.time.LocalDateTime;
 import lombok.Data;
 
