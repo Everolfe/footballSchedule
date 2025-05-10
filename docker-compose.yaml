@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    container_name: database
+    restart: always
+    env_file: .env  # Явно указываем файл с переменными
+    environment:
+      POSTGRES_USER: ${USERNAME}
+      POSTGRES_PASSWORD: ${PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - football_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - football_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USERNAME} -d ${DB_NAME}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    restart: always
+    build: .
+    env_file: .env
+    container_name: backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - football_net
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  football_data:
+
+networks:
+  football_net:

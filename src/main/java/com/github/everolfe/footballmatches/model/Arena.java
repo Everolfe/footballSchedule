@@ -17,9 +17,9 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.Data;
 
+@Data
 @Entity
 @Table(name = "arenas")
-@Data
 @Schema(description = "Arena")
 public class Arena {
 

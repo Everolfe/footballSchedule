@@ -19,7 +19,7 @@
 
     <!-- Корневой логгер -->
     <root level="INFO">
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="CONSOLE"/>
-    </root>
-</configuration>
+        <!-- <appender-ref ref="FILE"/> -->
+         <appender-ref ref="CONSOLE"/>
+     </root>
+ </configuration>
