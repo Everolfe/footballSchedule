@@ -1,4 +1,4 @@
-    HELP.md
+HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -12,7 +12,7 @@ logs/
 .settings
 .springBeans
 .sts4-cache
-
+db-init/init.sql
 ### IntelliJ IDEA ###
 .idea
 *.iws
