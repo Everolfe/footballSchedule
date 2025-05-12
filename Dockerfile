@@ -18,7 +18,19 @@ FROM eclipse-temurin:17-alpine
 WORKDIR /app
 EXPOSE 8080
 
-# Копируем JAR из стадии сборки (явно указываем имя файла)
-COPY --from=build /app/target/*.jar /app/app.jar
+# Устанавливаем postgresql-client для выполнения скриптов
+RUN apk add --no-cache postgresql-client
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Копируем JAR и SQL скрипты
+COPY --from=build /app/target/*.jar /app/app.jar
+COPY db-init/ /db-init/
+
+# Создаем скрипт для запуска
+RUN echo $'#!/bin/sh\n\
+java -jar /app/app.jar &\n\
+sleep 15\n\
+PGPASSWORD=$DB_PASSWORD psql -h db -U $DB_USER -d $DB_NAME -f /db-init/init.sql\n\
+wait\n' > /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
