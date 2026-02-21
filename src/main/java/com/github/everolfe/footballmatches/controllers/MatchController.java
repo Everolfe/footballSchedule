@@ -1,5 +1,5 @@
 package com.github.everolfe.footballmatches.controllers;
-
+//
 import com.github.everolfe.footballmatches.aspect.CounterAnnotation;
 import com.github.everolfe.footballmatches.controllers.constants.MatchConstants;
 import com.github.everolfe.footballmatches.controllers.constants.UrlConstants;
@@ -12,7 +12,6 @@ import com.github.everolfe.footballmatches.service.MatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
