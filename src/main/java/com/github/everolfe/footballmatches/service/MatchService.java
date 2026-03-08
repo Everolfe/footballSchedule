@@ -1,11 +1,8 @@
 package com.github.everolfe.footballmatches.service;
 
 import com.github.everolfe.footballmatches.aspect.AspectAnnotation;
-import com.github.everolfe.footballmatches.cache.Cache;
-import com.github.everolfe.footballmatches.cache.CacheConstants;
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
-import com.github.everolfe.footballmatches.dto.match.MatchRequest;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ExceptionMessages;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
@@ -16,43 +13,48 @@ import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
 import com.github.everolfe.footballmatches.repository.TeamRepository;
-import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
-
-
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-@Transactional
 @AllArgsConstructor
 public class MatchService  {
 
     private static final String ID_FIELD = "id";
     private static final String TOURNAMENT_NAME_FIELD = "tournamentName";
+    private static final String CACHE_NAME = "matches";
+    private static final String CACHE_NAME_WITH_ARENA_AND_TEAMS = "matchesWithArenaAndTeams";
 
-    private final Cache<String, Object> cache;
     private final MatchRepository matchRepository;
     private final TeamRepository teamRepository;
-    private final ArenaRepository  arenaRepository;
+    private final ArenaRepository arenaRepository;
 
     @AspectAnnotation
-    public void create(Match match) {
+    @CachePut(value = CACHE_NAME, key = "#result.id")
+    @Transactional
+    public Match create(Match match) {
         if (match == null) {
             throw new BadRequestException("Match is null");
         }
         ValidationUtils.validateCapitalizedWords(TOURNAMENT_NAME_FIELD, match.getTournamentName());
         ValidationUtils.validateDateFormat(match.getDateTime().toString());
-        matchRepository.save(match);
-        cache.put(CacheConstants.getMatchCacheKey(match.getId()), match);
+        return matchRepository.save(match);
     }
 
     @AspectAnnotation
+    @Cacheable(value = CACHE_NAME_WITH_ARENA_AND_TEAMS)
+    @Transactional(readOnly = true)
     public List<MatchDtoWithArenaAndTeams> readAll() {
         List<Match> matches = matchRepository.findAll();
         List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList = new ArrayList<>();
@@ -66,22 +68,22 @@ public class MatchService  {
     }
 
     @AspectAnnotation
+    @Cacheable(value = CACHE_NAME, key = "#id")
+    @Transactional(readOnly = true)
     public MatchDtoWithArenaAndTeams read(final Integer id) throws ResourcesNotFoundException {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
-        Object match = cache.get(CacheConstants.getMatchCacheKey(id));
-        if (match != null) {
-            return (MatchDtoWithArenaAndTeams) match;
-        } else {
-            MatchDtoWithArenaAndTeams matchDtoWithArenaAndTeams = ConvertDtoClasses
-                    .convertToMatchDtoWithArenaAndTeams(matchRepository.findById(id)
-                            .orElseThrow(() -> new ResourcesNotFoundException(
-                                    ExceptionMessages.getMatchNotExistMessage(id))));
-            cache.put(CacheConstants.getMatchCacheKey(id), matchDtoWithArenaAndTeams);
-            return matchDtoWithArenaAndTeams;
-        }
+        Match match = matchRepository.findById(id)
+                .orElseThrow(() -> new ResourcesNotFoundException(
+                        ExceptionMessages.getMatchNotExistMessage(id)));
+        return ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match);
     }
 
     @AspectAnnotation
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_NAME_WITH_ARENA_AND_TEAMS, allEntries = true),
+            @CacheEvict(value = CACHE_NAME, key = "#id")
+    })
+    @Transactional
     public boolean update(Match match, final Integer id) {
         ValidationUtils.validateCapitalizedWords(TOURNAMENT_NAME_FIELD, match.getTournamentName());
         ValidationUtils.validateDateFormat(match.getDateTime().toString());
@@ -90,7 +92,6 @@ public class MatchService  {
         if (existingMatch.isPresent()) {
             match.setId(id);
             matchRepository.save(match);
-            cache.put(CacheConstants.getMatchCacheKey(id), match);
             return true;
         } else {
             throw new ResourcesNotFoundException(ExceptionMessages.getMatchNotExistMessage(id));
@@ -98,6 +99,11 @@ public class MatchService  {
     }
 
     @AspectAnnotation
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_NAME, key = "#matchId"),
+            @CacheEvict(value = CACHE_NAME_WITH_ARENA_AND_TEAMS, allEntries = true)
+    })
+    @Transactional
     public boolean delete(final Integer matchId) {
         ValidationUtils.validateNonNegative(ID_FIELD, matchId);
         Optional<Match> matchOptional = matchRepository.findById(matchId);
@@ -107,16 +113,15 @@ public class MatchService  {
             if (teams != null) {
                 teams.forEach(team -> {
                     team.getMatches().remove(match);
-                    cache.put(CacheConstants.getTeamCacheKey(team.getId()), team);
                     teamRepository.save(team);
                 });
             }
             Arena arena = match.getArena();
-            arena.getMatchList().remove(match);
-            arenaRepository.save(arena);
-            cache.put(CacheConstants.getArenaCacheKey(arena.getId()), arena);
+            if (arena != null) {
+                arena.getMatchList().remove(match);
+                arenaRepository.save(arena);
+            }
             matchRepository.deleteById(matchId);
-            cache.remove(CacheConstants.getMatchCacheKey(matchId));
             return true;
         } else {
             throw new ResourcesNotFoundException(
@@ -125,6 +130,11 @@ public class MatchService  {
     }
 
     @AspectAnnotation
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_NAME, key = "#matchId"),
+            @CacheEvict(value = CACHE_NAME_WITH_ARENA_AND_TEAMS, allEntries = true)
+    })
+    @Transactional
     public boolean addTeamToMatch(final Integer matchId, final Integer teamId)
             throws ResourcesNotFoundException, BadRequestException {
         ValidationUtils.validateNonNegative(ID_FIELD, matchId);
@@ -138,17 +148,20 @@ public class MatchService  {
         if (!match.getTeamList().contains(team)) {
             team.getMatches().add(match);
             teamRepository.save(team);
-            cache.put(CacheConstants.getTeamCacheKey(teamId), team);
             match.getTeamList().add(team);
             matchRepository.save(match);
-            cache.put(CacheConstants.getMatchCacheKey(matchId), match);
             return true;
         } else {
-            throw new BadRequestException("Match have already such team");
+            throw new BadRequestException("Match already has such team");
         }
     }
 
     @AspectAnnotation
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_NAME, key = "#matchId"),
+            @CacheEvict(value = CACHE_NAME_WITH_ARENA_AND_TEAMS, allEntries = true)
+    })
+    @Transactional
     public boolean removeTeamFromMatch(final Integer matchId, final Integer teamId)
             throws ResourcesNotFoundException, BadRequestException {
         ValidationUtils.validateNonNegative(ID_FIELD, matchId);
@@ -162,10 +175,8 @@ public class MatchService  {
         if (match.getTeamList().contains(team)) {
             team.getMatches().remove(match);
             teamRepository.save(team);
-            cache.put(CacheConstants.getTeamCacheKey(teamId), team);
             match.getTeamList().remove(team);
             matchRepository.save(match);
-            cache.put(CacheConstants.getMatchCacheKey(matchId), match);
             return true;
         } else {
             throw new BadRequestException("Match does not have such team");
@@ -173,6 +184,11 @@ public class MatchService  {
     }
 
     @AspectAnnotation
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_NAME, key = "#matchId"),
+            @CacheEvict(value = CACHE_NAME_WITH_ARENA_AND_TEAMS, allEntries = true)
+    })
+    @Transactional
     public boolean setNewArena(final Integer matchId, final Integer arenaId)
             throws ResourcesNotFoundException {
         ValidationUtils.validateNonNegative(ID_FIELD, matchId);
@@ -183,16 +199,24 @@ public class MatchService  {
         Arena newArena = arenaRepository.findById(arenaId)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         ExceptionMessages.getArenaNotExistMessage(arenaId)));
+
+        // Remove from old arena if exists
+        Arena oldArena = match.getArena();
+        if (oldArena != null) {
+            oldArena.getMatchList().remove(match);
+            arenaRepository.save(oldArena);
+        }
+
         newArena.getMatchList().add(match);
         arenaRepository.save(newArena);
-        cache.put(CacheConstants.getArenaCacheKey(arenaId), newArena);
         match.setArena(newArena);
         matchRepository.save(match);
-        cache.put(CacheConstants.getMatchCacheKey(matchId), match);
         return true;
     }
 
     @AspectAnnotation
+    @CacheEvict(value = CACHE_NAME, key = "#matchId")
+    @Transactional
     public boolean updateMatchTime(final Integer matchId, final LocalDateTime time)
             throws ResourcesNotFoundException {
         ValidationUtils.validateNonNegative(ID_FIELD, matchId);
@@ -202,17 +226,18 @@ public class MatchService  {
                         ExceptionMessages.getMatchNotExistMessage(matchId)));
         match.setDateTime(time);
         matchRepository.save(match);
-        cache.put(CacheConstants.getMatchCacheKey(matchId), match);
         return true;
     }
 
     @AspectAnnotation
+    @Cacheable(value = "matchesByDate", key = "{#startDate, #endDate}")
+    @Transactional(readOnly = true)
     public List<MatchDtoWithArenaAndTeams> findMatchesByDates(
             LocalDateTime startDate, LocalDateTime endDate) {
 
         List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList = new ArrayList<>();
         if (startDate == null && endDate == null
-            || startDate != null && endDate != null && startDate.isAfter(endDate)) {
+                || startDate != null && endDate != null && startDate.isAfter(endDate)) {
             return matchDtoWithArenaAndTeamsList;
         } else if (startDate == null) {
             for (Match match : matchRepository.findByDateTimeLessThanEqual(endDate)) {
@@ -234,6 +259,8 @@ public class MatchService  {
     }
 
     @AspectAnnotation
+    @Cacheable(value = "matchesByTournament", key = "#tournamentName")
+    @Transactional(readOnly = true)
     public List<MatchDtoWithArenaAndTeams> getMatchesByTournamentName(final String tournamentName) {
         ValidationUtils.validateCapitalizedWords(TOURNAMENT_NAME_FIELD, tournamentName);
         List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList = new ArrayList<>();
@@ -245,6 +272,8 @@ public class MatchService  {
     }
 
     @AspectAnnotation
+    @CacheEvict(value = CACHE_NAME_WITH_ARENA_AND_TEAMS, allEntries = true)
+    @Transactional
     public void createBulk(List<Match> matches) {
         if (matches == null) {
             throw new BadRequestException("Match list cannot be null");
@@ -259,7 +288,7 @@ public class MatchService  {
                 })
                 .toList();
         if (validMatches.isEmpty()) {
-            throw new BadRequestException("No valid players provided");
+            throw new BadRequestException("No valid matches provided");
         }
         matchRepository.saveAll(validMatches);
     }
