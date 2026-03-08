@@ -12,7 +12,7 @@ logs/
 .settings
 .springBeans
 .sts4-cache
-db-init/init.sql
+init/02-insert-data.sql
 ### IntelliJ IDEA ###
 .idea
 *.iws
@@ -28,7 +28,7 @@ db-init/init.sql
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+*.sql
 ### VS Code ###
 .vscode/
 google_checks.xml
