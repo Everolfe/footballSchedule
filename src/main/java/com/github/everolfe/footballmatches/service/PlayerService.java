@@ -1,8 +1,6 @@
 package com.github.everolfe.footballmatches.service;
 
 import com.github.everolfe.footballmatches.aspect.AspectAnnotation;
-import com.github.everolfe.footballmatches.cache.Cache;
-import com.github.everolfe.footballmatches.cache.CacheConstants;
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.player.PlayerDto;
 import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
@@ -19,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 
@@ -29,30 +31,34 @@ public class PlayerService {
 
     private static final String ID_FIELD = "id";
     private static final String AGE_FIELD = "age";
+    private static final String CACHE_NAME = "players";
+    private static final String CACHE_NAME_WITH_TEAM = "playersWithTeam";
 
-    private final Cache<String, Object> cache;
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
 
     @AspectAnnotation
-    public void create(Player player, final Integer teamId) {
+    @CachePut(value = CACHE_NAME, key = "#result.id")
+    public PlayerDto create(Player player, final Integer teamId) {
+        if (player == null) {
+            throw new BadRequestException("Player is null");
+        }
+
         if (teamId != null) {
             Team team = teamRepository.findById(teamId)
                     .orElseThrow(() -> new ResourcesNotFoundException(
                             ExceptionMessages.getTeamNotExistMessage(teamId)));
             player.setTeam(team);
         }
-        if (player == null) {
-            throw new BadRequestException("Player is null");
-        }
+
         ValidationUtils.validateProperName(player.getCountry());
         ValidationUtils.validateNonNegative(AGE_FIELD, player.getAge());
         playerRepository.save(player);
-        PlayerDto playerDto = ConvertDtoClasses.convertToPlayerDto(player);
-        cache.put(CacheConstants.getPlayerCacheKey(player.getId()), playerDto);
+        return ConvertDtoClasses.convertToPlayerDto(player);
     }
 
     @AspectAnnotation
+    @Cacheable(value = CACHE_NAME_WITH_TEAM)
     public List<PlayerDtoWithTeam> readAll() {
         List<Player> players = playerRepository.findAll();
         List<PlayerDtoWithTeam> playerDtoWithTeams = new ArrayList<>();
@@ -65,23 +71,24 @@ public class PlayerService {
     }
 
     @AspectAnnotation
+    @Cacheable(value = CACHE_NAME, key = "#id")
     public PlayerDto read(final Integer id) {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
-        Object cachedPlayer = cache.get(CacheConstants.getPlayerCacheKey(id));
-        if (cachedPlayer != null) {
-            return (PlayerDto) cachedPlayer;
-        } else {
-            PlayerDto playerDto = ConvertDtoClasses.convertToPlayerDto(playerRepository.findById(id)
-                    .orElseThrow(() -> new ResourcesNotFoundException(
-                            ExceptionMessages.getPlayerNotExistMessage(id))));
-            cache.put(CacheConstants.getPlayerCacheKey(id), playerDto);
-            return playerDto;
-        }
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new ResourcesNotFoundException(
+                        ExceptionMessages.getPlayerNotExistMessage(id)));
+        return ConvertDtoClasses.convertToPlayerDto(player);
     }
 
     @AspectAnnotation
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_NAME_WITH_TEAM, allEntries = true),
+            @CacheEvict(value = CACHE_NAME, key = "#id")
+    })
     public boolean update(Player player, final Integer id, final Integer teamId) {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
+        ValidationUtils.validateProperName(player.getCountry());
+        ValidationUtils.validateNonNegative(AGE_FIELD, player.getAge());
 
         return playerRepository.findById(id)
                 .map(existingPlayer -> {
@@ -93,35 +100,33 @@ public class PlayerService {
                                         ExceptionMessages.getTeamNotExistMessage(teamId)));
                         player.setTeam(team);
                     } else {
-                        player.setTeam(null); // Убираем команду у игрока, если teamId не передан
+                        player.setTeam(null);
                     }
 
                     playerRepository.save(player);
-                    cache.put(CacheConstants.getPlayerCacheKey(id), player);
                     return true;
                 })
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         ExceptionMessages.getPlayerNotExistMessage(id)));
     }
 
-
     @AspectAnnotation
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_NAME, key = "#id"),
+            @CacheEvict(value = CACHE_NAME_WITH_TEAM, allEntries = true)
+    })
     public boolean delete(final Integer id) {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         ExceptionMessages.getPlayerNotExistMessage(id)));
-        if (player.getTeam() != null) {
-            Team team = player.getTeam();
-            teamRepository.save(team);
-            cache.put(CacheConstants.getTeamCacheKey(team.getId()), team);
-        }
+
         playerRepository.deleteById(id);
-        cache.remove(CacheConstants.getPlayerCacheKey(player.getId()));
         return true;
     }
 
     @AspectAnnotation
+    @Cacheable(value = "playersByAge", key = "#age")
     public List<PlayerDto> getPlayersByAge(final Integer age) {
         ValidationUtils.validateNonNegative(AGE_FIELD, age);
         List<PlayerDto> playerDto = new ArrayList<>();
@@ -132,6 +137,7 @@ public class PlayerService {
     }
 
     @AspectAnnotation
+    @CacheEvict(value = CACHE_NAME_WITH_TEAM, allEntries = true)
     public void createBulk(List<Player> players) {
         if (players == null) {
             throw new BadRequestException("Players list cannot be null");
@@ -149,5 +155,4 @@ public class PlayerService {
         }
         playerRepository.saveAll(validPlayers);
     }
-
 }
