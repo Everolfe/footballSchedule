@@ -1,8 +1,6 @@
 package com.github.everolfe.footballmatches.service;
 
 import com.github.everolfe.footballmatches.aspect.AspectAnnotation;
-import com.github.everolfe.footballmatches.cache.Cache;
-import com.github.everolfe.footballmatches.cache.CacheConstants;
 import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDto;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
@@ -14,40 +12,46 @@ import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
 import com.github.everolfe.footballmatches.repository.MatchRepository;
-import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-@Transactional
 @AllArgsConstructor
 public class ArenaService {
 
     private static final String ID_FIELD = "id";
     private static final String CAPACITY_FIELD = "capacity";
+    private static final String CACHE_NAME = "arenas";
+    private static final String CACHE_NAME_WITH_MATCHES = "arenasWithMatches";
 
-    private final Cache<String, Object> cache;
     private final ArenaRepository arenaRepository;
-    private  final MatchRepository matchRepository;
+    private final MatchRepository matchRepository;
 
     @AspectAnnotation
-    public void create(Arena arena) {
+    @CachePut(value = CACHE_NAME, key = "#result.id")
+    public ArenaDto create(Arena arena) {
         if (arena == null) {
             throw new BadRequestException("Arena is null");
         }
         ValidationUtils.validateProperName(arena.getCity());
         ValidationUtils.validateNonNegative(CAPACITY_FIELD, arena.getCapacity());
         arenaRepository.save(arena);
-        ArenaDto arenaDto = ConvertDtoClasses.convertToArenaDto(arena);
-        cache.put(CacheConstants.getArenaCacheKey(arenaDto.getId()), arenaDto);
+        return ConvertDtoClasses.convertToArenaDto(arena);
     }
 
     @AspectAnnotation
+    @Cacheable(value = CACHE_NAME_WITH_MATCHES)
+    @Transactional(readOnly = true)
     public List<ArenaDtoWithMatches> readAll() {
         List<ArenaDtoWithMatches> arenaDtoWithMatches = new ArrayList<>();
         List<Arena> arenas = arenaRepository.findAll();
@@ -60,21 +64,21 @@ public class ArenaService {
     }
 
     @AspectAnnotation
+    @Cacheable(value = CACHE_NAME, key = "#id")
+    @Transactional(readOnly = true)
     public ArenaDto read(final Integer id) {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
-        Object cachedArena = cache.get(CacheConstants.getArenaCacheKey(id));
-        if (cachedArena != null) {
-            return (ArenaDto) cachedArena;
-        } else {
-            ArenaDto arenaDto =  ConvertDtoClasses.convertToArenaDto(arenaRepository.findById(id)
-                            .orElseThrow(() -> new ResourcesNotFoundException(
-                                    ExceptionMessages.getArenaNotExistMessage(id))));
-            cache.put(CacheConstants.getArenaCacheKey(id), arenaDto);
-            return arenaDto;
-        }
+        return ConvertDtoClasses.convertToArenaDto(arenaRepository.findById(id)
+                .orElseThrow(() -> new ResourcesNotFoundException(
+                        ExceptionMessages.getArenaNotExistMessage(id))));
     }
 
     @AspectAnnotation
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_NAME_WITH_MATCHES, allEntries = true),
+            @CacheEvict(value = CACHE_NAME, key = "#id")
+    })
+    @Transactional
     public boolean update(Arena arena, final Integer id) {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
         ValidationUtils.validateProperName(arena.getCity());
@@ -83,7 +87,6 @@ public class ArenaService {
                 .map(existingArena -> {
                     arena.setId(id);
                     arenaRepository.save(arena);
-                    cache.put(CacheConstants.getArenaCacheKey(id), arena);
                     return true;
                 })
                 .orElseThrow(() -> new ResourcesNotFoundException(
@@ -91,6 +94,11 @@ public class ArenaService {
     }
 
     @AspectAnnotation
+    @Caching(evict = {
+            @CacheEvict(value = CACHE_NAME, key = "#id"),
+            @CacheEvict(value = CACHE_NAME_WITH_MATCHES, allEntries = true)
+    })
+    @Transactional
     public boolean delete(final Integer id) {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
         Optional<Arena> arenaOptional = arenaRepository.findById(id);
@@ -100,12 +108,10 @@ public class ArenaService {
             if (matchList != null) {
                 matchList.forEach(match -> {
                     match.setArena(null);
-                    cache.put(CacheConstants.getMatchCacheKey(match.getId()), match);
                     matchRepository.save(match);
                 });
             }
             arenaRepository.deleteById(id);
-            cache.remove(CacheConstants.getArenaCacheKey(id));
             return true;
         } else {
             throw new ResourcesNotFoundException(ExceptionMessages.getArenaNotExistMessage(id));
@@ -118,6 +124,8 @@ public class ArenaService {
     }
 
     @AspectAnnotation
+    @Cacheable(value = "arenasByCapacity", key = "{#minCapacity, #maxCapacity}")
+    @Transactional(readOnly = true)
     public List<ArenaDto> getArenasByCapacity(
             final Integer minCapacity, final Integer maxCapacity) {
         ValidationUtils.validateNonNegative(CAPACITY_FIELD, minCapacity);
@@ -142,6 +150,8 @@ public class ArenaService {
     }
 
     @AspectAnnotation
+    @CacheEvict(value = CACHE_NAME_WITH_MATCHES, allEntries = true)
+    @Transactional
     public void createBulk(List<Arena> arenas) {
         if (arenas == null) {
             throw new BadRequestException("Arena list cannot be null");
@@ -155,7 +165,7 @@ public class ArenaService {
                 })
                 .toList();
         if (validArenas.isEmpty()) {
-            throw new BadRequestException("No valid players provided");
+            throw new BadRequestException("No valid arenas provided");
         }
         arenaRepository.saveAll(validArenas);
     }

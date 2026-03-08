@@ -41,11 +41,11 @@ public class ArenaController {
     @Operation(summary = ArenaConstants.CREATE_SUMMARY,
             description = ArenaConstants.CREATE_DESCRIPTION)
     @PostMapping(UrlConstants.CREATE_URL)
-    public ResponseEntity<Void> createArena(
+    public ResponseEntity<ArenaDto> createArena(
             @Parameter(description = ArenaConstants.ARENA_JSON_DESCRIPTION)
             @Valid @RequestBody final Arena arena) {
-        arenaService.create(arena);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        ArenaDto newArena = arenaService.create(arena);
+        return new ResponseEntity<>(newArena, HttpStatus.CREATED);
     }
 
     @Operation(summary = ArenaConstants.GET_ALL_SUMMARY,
