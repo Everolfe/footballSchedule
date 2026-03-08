@@ -1,13 +1,13 @@
 package com.github.everolfe.footballmatches.service;
 
 import com.github.everolfe.footballmatches.aspect.AspectAnnotation;
-import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.player.PlayerDto;
 import com.github.everolfe.footballmatches.dto.player.PlayerDtoWithTeam;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ExceptionMessages;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
+import com.github.everolfe.footballmatches.mapper.PlayerMapper;
 import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
 import com.github.everolfe.footballmatches.repository.PlayerRepository;
@@ -37,6 +37,8 @@ public class PlayerService {
     private final PlayerRepository playerRepository;
     private final TeamRepository teamRepository;
 
+    private final PlayerMapper playerMapper;
+
     @AspectAnnotation
     @CachePut(value = CACHE_NAME, key = "#result.id")
     public PlayerDto create(Player player, final Integer teamId) {
@@ -54,7 +56,7 @@ public class PlayerService {
         ValidationUtils.validateProperName(player.getCountry());
         ValidationUtils.validateNonNegative(AGE_FIELD, player.getAge());
         playerRepository.save(player);
-        return ConvertDtoClasses.convertToPlayerDto(player);
+        return playerMapper.toDto(player);
     }
 
     @AspectAnnotation
@@ -64,7 +66,7 @@ public class PlayerService {
         List<PlayerDtoWithTeam> playerDtoWithTeams = new ArrayList<>();
         if (!players.isEmpty()) {
             for (Player player : players) {
-                playerDtoWithTeams.add(ConvertDtoClasses.convertToPlayerDtoWithTeam(player));
+                playerDtoWithTeams.add(playerMapper.toDtoWithTeam(player));
             }
         }
         return playerDtoWithTeams;
@@ -77,7 +79,7 @@ public class PlayerService {
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         ExceptionMessages.getPlayerNotExistMessage(id)));
-        return ConvertDtoClasses.convertToPlayerDto(player);
+        return playerMapper.toDto(player);
     }
 
     @AspectAnnotation
@@ -131,7 +133,7 @@ public class PlayerService {
         ValidationUtils.validateNonNegative(AGE_FIELD, age);
         List<PlayerDto> playerDto = new ArrayList<>();
         for (Player player : playerRepository.findByAge(age)) {
-            playerDto.add(ConvertDtoClasses.convertToPlayerDto(player));
+            playerDto.add(playerMapper.toDto(player));
         }
         return playerDto;
     }

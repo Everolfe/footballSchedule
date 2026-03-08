@@ -1,13 +1,13 @@
 package com.github.everolfe.footballmatches.service;
 
 import com.github.everolfe.footballmatches.aspect.AspectAnnotation;
-import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDto;
 import com.github.everolfe.footballmatches.dto.arena.ArenaDtoWithMatches;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ExceptionMessages;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
+import com.github.everolfe.footballmatches.mapper.ArenaMapper;
 import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.repository.ArenaRepository;
@@ -37,6 +37,8 @@ public class ArenaService {
     private final ArenaRepository arenaRepository;
     private final MatchRepository matchRepository;
 
+    private final ArenaMapper arenaMapper;
+
     @AspectAnnotation
     @CachePut(value = CACHE_NAME, key = "#result.id")
     public ArenaDto create(Arena arena) {
@@ -46,7 +48,7 @@ public class ArenaService {
         ValidationUtils.validateProperName(arena.getCity());
         ValidationUtils.validateNonNegative(CAPACITY_FIELD, arena.getCapacity());
         arenaRepository.save(arena);
-        return ConvertDtoClasses.convertToArenaDto(arena);
+        return arenaMapper.toDto(arena);
     }
 
     @AspectAnnotation
@@ -57,7 +59,7 @@ public class ArenaService {
         List<Arena> arenas = arenaRepository.findAll();
         if (!arenas.isEmpty()) {
             for (Arena arena : arenas) {
-                arenaDtoWithMatches.add(ConvertDtoClasses.convertToArenaDtoWithMatches(arena));
+                arenaDtoWithMatches.add(arenaMapper.toDtoWithMatches(arena));
             }
         }
         return arenaDtoWithMatches;
@@ -68,7 +70,7 @@ public class ArenaService {
     @Transactional(readOnly = true)
     public ArenaDto read(final Integer id) {
         ValidationUtils.validateNonNegative(ID_FIELD, id);
-        return ConvertDtoClasses.convertToArenaDto(arenaRepository.findById(id)
+        return arenaMapper.toDto(arenaRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         ExceptionMessages.getArenaNotExistMessage(id))));
     }
@@ -135,15 +137,15 @@ public class ArenaService {
             return arenaDto;
         } else if (minCapacity == null) {
             for (Arena arena : arenaRepository.findByCapacityLessThanEqual(maxCapacity)) {
-                arenaDto.add(ConvertDtoClasses.convertToArenaDto(arena));
+                arenaDto.add(arenaMapper.toDto(arena));
             }
         } else if (maxCapacity == null) {
             for (Arena arena : arenaRepository.findByCapacityGreaterThanEqual(minCapacity)) {
-                arenaDto.add(ConvertDtoClasses.convertToArenaDto(arena));
+                arenaDto.add(arenaMapper.toDto(arena));
             }
         } else {
             for (Arena arena : arenaRepository.findByCapacityBetween(minCapacity, maxCapacity)) {
-                arenaDto.add(ConvertDtoClasses.convertToArenaDto(arena));
+                arenaDto.add(arenaMapper.toDto(arena));
             }
         }
         return arenaDto;

@@ -1,13 +1,13 @@
 package com.github.everolfe.footballmatches.service;
 
 import com.github.everolfe.footballmatches.aspect.AspectAnnotation;
-import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithMatchesAndPlayers;
 import com.github.everolfe.footballmatches.dto.team.TeamDtoWithPlayers;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ExceptionMessages;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
+import com.github.everolfe.footballmatches.mapper.TeamMapper;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.model.Player;
 import com.github.everolfe.footballmatches.model.Team;
@@ -40,6 +40,8 @@ public class TeamService {
     private final MatchRepository matchRepository;
     private final PlayerRepository playerRepository;
 
+    private final TeamMapper teamMapper;
+
     @AspectAnnotation
     @CachePut(value = CACHE_NAME, key = "#result.id")
     public Team create(Team team) {
@@ -58,8 +60,8 @@ public class TeamService {
         List<TeamDtoWithMatchesAndPlayers> teamDtoWithMatchesAndPlayers = new ArrayList<>();
         if (!teams.isEmpty()) {
             for (Team team : teams) {
-                teamDtoWithMatchesAndPlayers.add(ConvertDtoClasses
-                        .convertToTeamDtoWithMatchesAndPlayers(team));
+                teamDtoWithMatchesAndPlayers.add(
+                        teamMapper.toDtoWithMatchesAndPlayers(team));
             }
         }
         return teamDtoWithMatchesAndPlayers;
@@ -72,7 +74,7 @@ public class TeamService {
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         ExceptionMessages.getTeamNotExistMessage(id)));
-        return ConvertDtoClasses.convertToTeamDtoWithPlayers(team);
+        return teamMapper.toDtoWithPlayers(team);
     }
 
     @AspectAnnotation
@@ -259,7 +261,7 @@ public class TeamService {
         ValidationUtils.validateProperName(country);
         List<TeamDtoWithPlayers> teamDtoWithPlayers = new ArrayList<>();
         for (Team team : teamRepository.findByCountryIgnoreCase(country)) {
-            teamDtoWithPlayers.add(ConvertDtoClasses.convertToTeamDtoWithPlayers(team));
+            teamDtoWithPlayers.add(teamMapper.toDtoWithPlayers(team));
         }
         return teamDtoWithPlayers;
     }

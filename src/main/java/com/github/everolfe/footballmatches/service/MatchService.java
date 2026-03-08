@@ -1,12 +1,12 @@
 package com.github.everolfe.footballmatches.service;
 
 import com.github.everolfe.footballmatches.aspect.AspectAnnotation;
-import com.github.everolfe.footballmatches.dto.ConvertDtoClasses;
 import com.github.everolfe.footballmatches.dto.match.MatchDtoWithArenaAndTeams;
 import com.github.everolfe.footballmatches.exceptions.BadRequestException;
 import com.github.everolfe.footballmatches.exceptions.ExceptionMessages;
 import com.github.everolfe.footballmatches.exceptions.ResourcesNotFoundException;
 import com.github.everolfe.footballmatches.exceptions.ValidationUtils;
+import com.github.everolfe.footballmatches.mapper.MatchMapper;
 import com.github.everolfe.footballmatches.model.Arena;
 import com.github.everolfe.footballmatches.model.Match;
 import com.github.everolfe.footballmatches.model.Team;
@@ -40,6 +40,8 @@ public class MatchService  {
     private final TeamRepository teamRepository;
     private final ArenaRepository arenaRepository;
 
+    private final MatchMapper matchMapper;
+
     @AspectAnnotation
     @CachePut(value = CACHE_NAME, key = "#result.id")
     @Transactional
@@ -61,7 +63,7 @@ public class MatchService  {
         if (!matches.isEmpty()) {
             for (Match match : matches) {
                 matchDtoWithArenaAndTeamsList
-                        .add(ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match));
+                        .add(matchMapper.toDtoWithArenaAndTeams(match));
             }
         }
         return matchDtoWithArenaAndTeamsList;
@@ -75,7 +77,7 @@ public class MatchService  {
         Match match = matchRepository.findById(id)
                 .orElseThrow(() -> new ResourcesNotFoundException(
                         ExceptionMessages.getMatchNotExistMessage(id)));
-        return ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match);
+        return matchMapper.toDtoWithArenaAndTeams(match);
     }
 
     @AspectAnnotation
@@ -242,17 +244,17 @@ public class MatchService  {
         } else if (startDate == null) {
             for (Match match : matchRepository.findByDateTimeLessThanEqual(endDate)) {
                 matchDtoWithArenaAndTeamsList.add(
-                        ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match));
+                        matchMapper.toDtoWithArenaAndTeams(match));
             }
         } else if (endDate == null) {
             for (Match match : matchRepository.findByDateTimeGreaterThanEqual(startDate)) {
                 matchDtoWithArenaAndTeamsList.add(
-                        ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match));
+                        matchMapper.toDtoWithArenaAndTeams(match));
             }
         } else {
             for (Match match : matchRepository.findByDateTimeBetween(startDate, endDate)) {
                 matchDtoWithArenaAndTeamsList.add(
-                        ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match));
+                        matchMapper.toDtoWithArenaAndTeams(match));
             }
         }
         return matchDtoWithArenaAndTeamsList;
@@ -266,7 +268,7 @@ public class MatchService  {
         List<MatchDtoWithArenaAndTeams> matchDtoWithArenaAndTeamsList = new ArrayList<>();
         for (Match match : matchRepository.findByTournamentNameIgnoreCase(tournamentName)) {
             matchDtoWithArenaAndTeamsList
-                    .add(ConvertDtoClasses.convertToMatchDtoWithArenaAndTeams(match));
+                    .add(matchMapper.toDtoWithArenaAndTeams(match));
         }
         return matchDtoWithArenaAndTeamsList;
     }
