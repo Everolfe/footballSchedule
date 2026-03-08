@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <include file="db/changelog/v1.0/20260308-create-arenas-table.xml"/>
+    <include file="db/changelog/v1.0/20260308-create-teams-table.xml"/>
+    <include file="db/changelog/v1.0/20260308-create-players-table.xml"/>
+    <include file="db/changelog/v1.0/20260308-create-matches-table.xml"/>
+    <include file="db/changelog/v1.0/20260308-create-match-teams-join-table.xml"/>
+    <include file="db/changelog/v1.0/20260308-add-foreign-keys.xml"/>
+
+</databaseChangeLog>
