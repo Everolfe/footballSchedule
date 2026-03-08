@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20260308-5" author="Everolfe">
+        <comment>Create match_teams join table for many-to-many relationship</comment>
+
+        <createTable tableName="match_teams">
+            <column name="match_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="team_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey
+                tableName="match_teams"
+                columnNames="match_id, team_id"
+                constraintName="pk_match_teams"/>
+
+        <rollback>
+            <dropTable tableName="match_teams"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

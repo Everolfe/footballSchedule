@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20260308-4" author="Everolfe">
+        <comment>Create matches table</comment>
+
+        <createTable tableName="matches">
+            <column name="id" type="SERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="date_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tournament_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="arena_id" type="INT"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="matches"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

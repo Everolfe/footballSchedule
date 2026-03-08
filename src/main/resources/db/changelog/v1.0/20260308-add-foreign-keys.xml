@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20260308-6" author="Everolfe">
+        <comment>Add foreign key constraints</comment>
+
+        <!-- Foreign key for players.team_id -> teams.id -->
+        <addForeignKeyConstraint
+                baseTableName="players"
+                baseColumnNames="team_id"
+                constraintName="fk_player_team"
+                referencedTableName="teams"
+                referencedColumnNames="id"
+                onDelete="SET NULL"/>
+
+        <!-- Foreign key for matches.arena_id -> arenas.id -->
+        <addForeignKeyConstraint
+                baseTableName="matches"
+                baseColumnNames="arena_id"
+                constraintName="fk_match_arena"
+                referencedTableName="arenas"
+                referencedColumnNames="id"
+                onDelete="SET NULL"/>
+
+        <!-- Foreign key for match_teams.match_id -> matches.id -->
+        <addForeignKeyConstraint
+                baseTableName="match_teams"
+                baseColumnNames="match_id"
+                constraintName="fk_match_teams_match"
+                referencedTableName="matches"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <!-- Foreign key for match_teams.team_id -> teams.id -->
+        <addForeignKeyConstraint
+                baseTableName="match_teams"
+                baseColumnNames="team_id"
+                constraintName="fk_match_teams_team"
+                referencedTableName="teams"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <rollback>
+            <dropForeignKeyConstraint baseTableName="players" constraintName="fk_player_team"/>
+            <dropForeignKeyConstraint baseTableName="matches" constraintName="fk_match_arena"/>
+            <dropForeignKeyConstraint baseTableName="match_teams" constraintName="fk_match_teams_match"/>
+            <dropForeignKeyConstraint baseTableName="match_teams" constraintName="fk_match_teams_team"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="20260308-7" author="Everolfe">
+        <comment>Add indexes for foreign keys</comment>
+
+        <createIndex indexName="idx_players_team_id" tableName="players">
+            <column name="team_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_matches_arena_id" tableName="matches">
+            <column name="arena_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_match_teams_match_id" tableName="match_teams">
+            <column name="match_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_match_teams_team_id" tableName="match_teams">
+            <column name="team_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex indexName="idx_players_team_id" tableName="players"/>
+            <dropIndex indexName="idx_matches_arena_id" tableName="matches"/>
+            <dropIndex indexName="idx_match_teams_match_id" tableName="match_teams"/>
+            <dropIndex indexName="idx_match_teams_team_id" tableName="match_teams"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
