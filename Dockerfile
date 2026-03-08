@@ -2,7 +2,6 @@ FROM maven:3.8.6-eclipse-temurin-17-alpine AS build
 
 WORKDIR /app
 
-
 COPY pom.xml mvnw ./
 COPY .mvn/ .mvn/
 RUN mvn dependency:go-offline -B
@@ -17,4 +16,5 @@ EXPOSE 8080
 
 COPY --from=build /app/target/*.jar /app/app.jar
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# ЗДЕСЬ ГЛАВНОЕ — указываем профиль docker
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=docker", "/app/app.jar"]
